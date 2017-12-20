@@ -1,0 +1,277 @@
+.out_button{
+    width: 100%;
+}
+
+.linkButton {
+    width: 40%;
+    height: 35px;
+    line-height: 35px;
+    background: #69bdfb;
+    border-radius: 5px;
+    display: block;
+    margin: 0 auto;
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+}
+
+.top_btn{
+    position: fixed;
+    top:150px;
+}
+.center_btn {
+    position: fixed;
+    top:250px;
+}
+
+.bottom_btn{
+    position: fixed;
+    top:350px;
+}
+
+.formPadding{
+    position: fixed;
+    top:20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    margin: 0 auto;
+}
+
+.commonDiv{
+    /*position: relative;*/
+    /*top:20px;*/
+    /*left: 20px;*/
+    /*right: 20px;*/
+    line-height: 40px;
+    display: -webkit-flex;
+    display: flex;
+
+}
+
+.noteDiv{
+    width: 100%;
+    /*flex: 1;*/
+    position: relative;
+    top:10px;
+    /*padding: 10px;*/
+}
+
+.progressDiv{
+    width: 100%;
+    /*flex: 1;*/
+    position: relative;
+    top:40px;
+    /*padding: 10px;*/
+}
+.relativeOverall{
+    width: 100%;
+    /*flex: 1;*/
+    position: relative;
+    top:10px;
+    border:1px solid #000;
+    outline:none
+    /*padding: 10px;*/
+    /*left:20px;*/
+
+}
+
+.insideDiv{
+    flex: 1;
+}
+
+.progressInfo{
+
+}
+
+.progressButton{
+    width: 100%;
+    /*flex: 1;*/
+    position: relative;
+    top:10px;
+    border:1px solid #000
+}
+
+.refreshButton{
+    float: right;
+    border:1px;
+    solid: #000;
+    outline:none;
+    width: 30px;
+    height: 30px;
+}
+
+.textboard{
+    border:1px solid #000;
+    outline:none;
+}
+/*collect*/
+.collect_info {
+    padding: 5px;
+}
+
+.collect_info li{
+    padding: 5px 15px;
+    font-size: 15px;
+}
+
+.startTime_info, .endTime_info, .city_info, .search_info {
+    line-height: 40px;
+    display: flex;
+}
+
+.startTime_leftInfo, .startTime_rightInfo, .endTime_leftInfo, .endTime_rightInfo, .city_leftInfo, .city_rightInfo {
+    flex: 1;
+}
+
+.search_info {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.startTime_input, .endTime_input, .city_rightInfo {
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    height: 34px;
+    width: 100%;
+    text-align: center;
+    float: right;
+    margin-top: 3px;
+}
+
+/*.startTime_input, .endTime_input{*/
+/*width: 100%;*/
+/*height: 100%;*/
+/*display: block;*/
+/*text-align: center;*/
+/*}*/
+#city_select {
+    padding: 0 2%;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#city_select option {
+    text-align: center;
+}
+.search_button {
+    border: 2px solid #bce8f1;
+    border-radius: 3px;
+    width: 25px;
+    height: 25px;
+    z-index: 100;
+    vertical-align: middle;
+}
+.startTimePicker_input, .endTimePicker_input {
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    height: 34px;
+    width: 100%;
+    text-align: center;
+    float: right;
+    margin-top: 3px;
+}
+
+.inAttenance_title ,.outAttenance_title {
+    padding: 5px 15px;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 15px;
+}
+
+.detailTitle_info {
+    border-bottom: 1px solid #e5e5e5;
+    display: -webkit-flex;
+    display: flex;
+    line-height: 30px;
+}
+.detailTitle_info div {
+    flex: 1;
+    font-size: 13px;
+    text-align: center;
+}
+ /*attendance detail*/
+.in_li{
+    width: 100%;
+    overflow: hidden;
+    display: block;
+}
+.attenance_query {
+    border-bottom: 1px solid #e5e5e5;
+}
+.in_li li{
+    display: flex;
+}
+.leftInfo_query {
+    flex: 1;
+}
+
+.rightInfo_query {
+    flex: 4;
+}
+.nameInfo_query {
+    flex: 1;
+}
+.typeInfo_query {
+    flex: 4;
+}
+.dateInfo_query {
+    padding-left: 10px;
+}
+.noteInfo_pre {
+    width: 100%;
+    height: 100%;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    *word-wrap: break-word;
+    *white-space : normal ;
+}
+.modal {
+    position:fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+.loading{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -43px;
+    margin-left: -43px
+}
+#cityList li{
+    background-color: #fdfdfd;
+    padding: 5px  15px ;
+    border: 2px solid #e5e5e5;
+    border-radius: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    justify-content: space-between;
+    line-height: 30px;
+    font-size: 16px;
+}
+
+.go_mall {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+#mallList li{
+    background-color: #fdfdfd;
+    padding: 5px  15px ;
+    border: 2px solid #e5e5e5;
+    border-radius: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    justify-content: space-between;
+    line-height: 30px;
+    font-size: 16px;
+}
+.go_other {
+    display: block;
+    height: 100%;
+    width: 100%;
+}

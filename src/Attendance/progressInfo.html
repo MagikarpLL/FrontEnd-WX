@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/register.css" type="text/css" />
+    <link rel="stylesheet" href="./css/Attendance.css">
+    <script src="../Common/JS/utils.js"></script>
+    <script src="../Common/JS/encryptionutils.js"></script>
+    <script src="../Common/JS/networkaffairs.js"></script>
+</head>
+<script>
+    var layoutAttendanceString;
+    var finalAttendanceString;
+    var isDelay = 150;
+    var isLayOut = sessionStorage.getItem("isLayOut");
+    window.onload=function () {
+        var  mallID = sessionStorage.getItem("mallID");
+        var  operatorKey =  sessionStorage.getItem("operatorKey");
+        N.getAction("selectMallDetail.action",{
+            mallId:mallID,
+            operatorKey : operatorKey
+        },function (mallDetail) {
+            time(mallDetail.firstDeployTime)
+            showInfo(mallDetail)
+        },function (xhr) {
+            alert("fail");
+        });
+
+
+//        var Odiv=document.createElement("div");             //创建一个div
+//        var Ospan=document.createElement("span");          //创建一个span
+//        Odiv.style.cssText="width:200px;height:200px;background:#636363;text-align:center;line-height:220px";    //创建div的css样式
+//
+////Odiv.id="box";                            //创建div的id为box
+////Odiv.className="Box";                    //div的class为Box
+//        Odiv.appendChild(Ospan);            //在div内创建一个span
+//        document.body.appendChild(Odiv);
+
+        var layOutDiv = document.getElementById("layoutHead");
+        var finishDiv = document.getElementById("finishHead");
+
+        if(isLayOut==1){
+            finishDiv.hidden = true;
+            layOutDiv.hidden = false;
+        }else {
+            layOutDiv.hidden = true;
+            finishDiv.hidden = false;
+        }
+
+        //在body内创建一个div
+        //insert
+//        var refChild = document.getElementById("x1");
+//        document.body.insertBefore(newNode,refChild);
+    }
+    function time(timetamp) {
+        if(timetamp) {
+            var date = new Date();
+            date.setTime(timetamp);
+
+//        var date = new Date();
+            var Y = date.getFullYear() + '-';
+            var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+            var D = date.getDate() + ' ';
+            var h = date.getHours() + ':';
+            var m = date.getMinutes() + ':';
+            var s = date.getSeconds();
+//        var ss = date.getMilliseconds();
+
+            document.getElementById('startTime').innerHTML = Y + M + D;
+        }else { document.getElementById('startTime').innerHTML = ""}
+
+    }
+    function showInfo(malldetail) {
+        var posNum = (100*malldetail.bindedMapDevice/malldetail.mapDevice).toFixed(2)+'%('+malldetail.bindedMapDevice+
+            '/'+malldetail.mapDevice+')'
+        document.getElementById('posNum').innerHTML = posNum;
+        var bleNum = (100*malldetail.blePass/malldetail.bindedMapDevice).toFixed(2)+'%('+malldetail.blePass+
+            '/'+malldetail.bindedMapDevice+')'
+        document.getElementById('bleNum').innerHTML = bleNum;
+        var ibeaconNum = (100*malldetail.iBeaconPass/malldetail.bindedMapDevice).toFixed(2)+'%('+malldetail.iBeaconPass+
+            '/'+malldetail.bindedMapDevice+')'
+        document.getElementById('ibeaconNum').innerHTML = ibeaconNum;
+        var photoNum = (100*malldetail.posPhoto/malldetail.bindedMapDevice).toFixed(2)+'%('+malldetail.posPhoto+
+            '/'+malldetail.bindedMapDevice+')'
+        document.getElementById('photoNum').innerHTML = photoNum;
+
+        if (malldetail.firstDeployTime) {
+            var allday = allDayFrom(malldetail.firstDeployTime)
+             isDelay = malldetail.bindedMapDevice / allday;
+        }else {
+            var allday = "";
+
+        }
+        var achievementNum = malldetail.bindedMapDevice+"(个)/"+allday+"(天)"
+        document.getElementById('achievementNum').innerHTML = achievementNum;
+        var cityName = sessionStorage.getItem("cityName");
+        var mallName = sessionStorage.getItem("mallName");
+        var position = "\n"+cityName+"-"+mallName;
+
+
+        layoutAttendanceString = position+"\n开始时间："+document.getElementById('startTime').innerHTML+"\n安装点位："+posNum
+        +"\nble测试："+bleNum+"\nibeacon测试："+ibeaconNum+"\n拍照数："+photoNum+"\n点位绩效："+achievementNum+"\n今日预计点位："
+
+        document.getElementById('finishPosNum').innerHTML = malldetail.mapDevice;
+        document.getElementById('finishFixNum').innerHTML = malldetail.bindedMapDevice;
+        document.getElementById('finishFirstNum').innerHTML = malldetail.firstAcceptanceMapDevice+"(移动设备："+malldetail.firstAcceptanceMobileDevice+")";
+        finalAttendanceString = position + "\n点位数："+malldetail.mapDevice +"\n安装数："+malldetail.bindedMapDevice+"\n初验数："+malldetail.firstAcceptanceMapDevice+"(移动设备："+malldetail.firstAcceptanceMobileDevice+")"
+            +"\n今日预计点位："
+    }
+    function allDayFrom(startTime) {
+        var timestamp = Date.parse(new Date());
+        var allSecond = (timestamp - startTime)/1000;
+        var all = Math.floor(allSecond/60/60/24);
+
+       return all;
+    }
+    function enter() {
+        var num = document.getElementById("planPos").value;
+        var isCheck = document.getElementById("isCheck").checked;
+        var isFinish = document.getElementById("isFinish").checked;
+        var isGoTo = document.getElementById("isGoTo").checked;
+        var isBack = document.getElementById("isBack").checked;
+        var planString;
+        var titleString;
+        if(isBack){
+            titleString = "在回来的路上"
+        }else if(isGoTo){
+            titleString = "在前往的路上"
+        } else {
+            titleString = "";
+        }
+
+        if (isCheck){
+            planString = "\n已验收"
+        }else {
+            planString = "\n未验收"
+        }
+        if(isFinish){
+            planString = planString+"-已完成"
+        }else {
+            planString = planString+"-未完成"
+        }
+
+        var attendance = "[部署及初验]"+titleString+ layoutAttendanceString +num+planString;
+        var finishAttendance = "[终验]"+titleString +finalAttendanceString + num +planString;
+        if (isDelay < 150) {
+            sessionStorage.setItem("isDelay", 1);
+        }else {
+            sessionStorage.setItem("isDelay", 0);
+        }
+        if(isLayOut==1) {
+            sessionStorage.setItem("att",attendance);
+        }else {
+            sessionStorage.setItem("att",finishAttendance);
+            sessionStorage.setItem("isDelay",0);
+        }
+//        sessionStorage.setItem("finalAtt",finishAttendance);
+//        sessionStorage.setItem("att",attendance);
+        history.go(-3);
+    }
+</script>
+<style type="text/css" >
+    span{
+        position:relative;
+        text-align:center;
+        display:inline-block;
+        /*left:50px;*/
+
+    }
+</style>
+<body>
+<div id="layoutHead">
+<div>开始时间:<span id="startTime" style="left: 60px;"></span></div>
+    <div>点位数:<span id="posNum" style="left: 75px;"></span></div>
+    <div>测试</div>
+    <div style="text-indent: 2em">BLE:<span id="bleNum" style="left: 31px;"></span></div>
+    <div style="text-indent: 2em">IBeacon:<span id="ibeaconNum"style="left: 5px;"></span></div>
+    <div style="text-indent: 2em">拍照:<span id="photoNum"style="left: 30px;"></span></div>
+    <div>点位绩效:<span id="achievementNum"style="left: 60px;"></span></div>
+</div>
+<div id="finishHead">
+    <div>点位数:<span id="finishPosNum" style="left: 30px;"></span></div>
+    <div>安装数:<span id="finishFixNum" style="left: 30px;"></span></div>
+    <div>初验数:<span id="finishFirstNum" style="left: 30px;"></span></div>
+</div>
+<hr/>
+<div id="todayPlan">
+<div>今日计划:</div>
+    <div style="text-indent: 2em">预计点位:<input style="border:1px solid black" id="planPos"> </div>
+    <div style="text-indent: 2em">是否验收:<input id="isCheck" type="checkbox"></div>
+    <div style="text-indent: 2em">是否完成:<input id="isFinish" type="checkbox"></div>
+    <hr/>
+</div>
+<div id="todaySchedule">
+<div>今日行程:</div>
+    <div style="text-indent: 2em">在前往的路上:<input id="isGoTo" type="checkbox"></div>
+    <div style="text-indent: 2em">在回来的路上:<input id="isBack" type="checkbox"></div>
+</div>
+<hr/>
+<button class="progressButton" onclick="enter()">确定</button>
+</body>
+</html>

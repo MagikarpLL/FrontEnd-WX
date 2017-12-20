@@ -1,0 +1,350 @@
+.out_button{
+    width: 100%;
+}
+.linkButton {
+    width: 40%;
+    height: 35px;
+    line-height: 35px;
+    background: #69bdfb;
+    border-radius: 5px;
+    display: block;
+    margin: 0 auto;
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+}
+.top_btn{
+    position: fixed;
+    top:150px;
+    left: 0;
+}
+
+.center_btn {
+    position: fixed;
+    top:250px;
+    left: 0;
+}
+
+.bottom_btn{
+    position: fixed;
+    top:350px;
+    left: 0;
+}
+
+/*list*/
+#list li{
+    padding: 5px 15px;
+    border-bottom: 1px solid #e5e5e5;
+
+    justify-content: space-between;
+    line-height: 30px;
+}
+.go_finance {
+    -webkit-tap-highlight-color:rgba(0,0,0,0);!important;
+    color: #333333;
+}
+
+.go_city {
+    -webkit-tap-highlight-color:rgba(0,0,0,0);!important;
+}
+
+
+#list li a .allInfo {
+    display: -webkit-flex !important;
+    display: flex !important;
+}
+#list li a .allInfo .leftInfo{
+    flex: 1;
+}
+#list li a .allInfo.rightInfo{
+    flex: 1;
+    text-align: right;
+}
+
+/*fiance*/
+.fiance_apply {
+    padding: 5px;
+}
+
+.fiance_apply li {
+    padding: 5px 15px;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 15px;
+    position: relative;
+}
+.apply_date,.apply_price,.apply_type {
+    display: -webkit-flex;
+    display: flex;
+    line-height: 40px;
+}
+
+.time_info,.price_info,.type_info{
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    height: 34px;
+    width: 80%;
+    text-align: center;
+    float: right;
+    margin-top: 3px;
+}
+.date_rightInfo, .date_leftInfo, .price_leftInfo, .price_rightInfo, .type_leftInfo, .type_rightInfo, .detail_leftInfo{
+    flex: 1;
+}
+.detail_rightInfo {
+    flex: 3;
+}
+.apply_detail {
+    display: -webkit-flex;
+    display: flex;
+    line-height: 80px;
+}
+
+.detail_info {
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    height: 70px;
+    width: 80%;
+    float: right;
+    margin-top: 5px;
+}
+
+/*collectInfo*/
+.collect_info {
+    padding: 5px;
+}
+
+.collect_info li{
+    padding: 5px 15px;
+    font-size: 15px;
+}
+
+.startTime_info, .endTime_info, .city_info, .search_info {
+    line-height: 40px;
+    display: flex;
+}
+
+.startTime_leftInfo, .startTime_rightInfo, .endTime_leftInfo, .endTime_rightInfo, .city_leftInfo, .city_rightInfo {
+    flex: 1;
+}
+
+.search_info {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.startTime_input, .endTime_input, .city_rightInfo {
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    height: 34px;
+    width: 100%;
+    text-align: center;
+    float: right;
+    margin-top: 3px;
+}
+
+/*.startTime_input, .endTime_input{*/
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*display: block;*/
+    /*text-align: center;*/
+/*}*/
+#city_select {
+    padding: 0 2%;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#city_select option {
+    text-align: center;
+}
+
+/*finance*/
+#finance_list a .allInfo {
+    display: -webkit-flex !important;
+    display: flex !important;
+    line-height: 30px;
+}
+#finance_list a .allInfo .leftInfo{
+    flex: 1;
+}
+#finance_list a .allInfo.rightInfo{
+    flex: 1;
+    text-align: right;
+}
+
+
+#list li .del{
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    margin-top: -9px;
+}
+
+#list li.current  .del{
+    display: block;
+}
+
+
+#list li .ui-icon-arrow-r{
+    display: block;
+}
+
+#list li.current .ui-icon-arrow-r{
+    display: none;
+}
+.editor{
+    position: absolute;
+    right: 20px;
+    top: 0;
+    margin: 1em 0 1.06em;
+    font-size: 15px;
+}
+
+.add {
+    position: absolute;
+    left: 20px;
+    top: 0;
+    margin: 1em 0 1.06em;
+    font-size: 15px;
+}
+.list li i {
+    float:right;width:15%;text-align:center;background:#E2421B;color:#fff;
+    display: block;
+}
+
+.deleteBtn {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: 10px;
+    bottom: 5px;
+}
+.deletePhotoBtn {
+    width: 30px;
+    height: 30px;
+    z-index: 100;
+    vertical-align: middle;
+
+}
+.outImag{
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    width: 100%;
+}
+
+/*collect*/
+.collect {
+    padding: 5px 15px;
+    border-bottom: 1px solid #e5e5e5;
+
+    justify-content: space-between;
+    line-height: 30px;
+}
+.collect .collect_allInfo {
+    display: -webkit-flex ;
+    display: flex ;
+}
+
+.collect_leftInfo {
+    flex: 1;
+    font-size: 13px;
+    text-align: left;
+}
+.collect_rightInfo {
+    flex: 1;
+    font-size: 13px;
+    text-align: right;
+}
+.search_button {
+    border: 2px solid #bce8f1;
+    border-radius: 3px;
+    width: 25px;
+    height: 25px;
+    z-index: 100;
+    vertical-align: middle;
+}
+
+#cityList li{
+    background-color: #fdfdfd;
+    padding: 5px  15px ;
+    border: 2px solid #e5e5e5;
+    border-radius: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    justify-content: space-between;
+    line-height: 30px;
+    font-size: 16px;
+}
+
+.go_mall {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+#mallList li{
+    background-color: #fdfdfd;
+    padding: 5px  15px ;
+    border: 2px solid #e5e5e5;
+    border-radius: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    justify-content: space-between;
+    line-height: 30px;
+    font-size: 16px;
+}
+.go_other {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.modal {
+    position:fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+.loading{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -43px;
+    margin-left: -43px
+}
+
+#apply_explain {
+    padding-top: 20px;
+}
+
+#apply_explain li {
+    padding: 5px 15px;
+    border-bottom: 1px solid #e5e5e5;
+
+    justify-content: space-between;
+}
+#apply_explain li img {
+    width: 80%;
+    text-align: center;
+    display:inline-block;
+
+}
+.applyImg_div {
+    text-align: center;
+}
+
+#apply_explain .firstTitle {
+    font-size: 15px;
+}
+
+#apply_explain li pre {
+    white-space: pre-wrap; /*css-3*/
+    white-space: -moz-pre-wrap; /*Mozilla,since1999*/
+    white-space: -o-pre-wrap; /*Opera7*/
+    word-wrap: break-word; /*InternetExplorer5.5+*/
+    font-size: 13px;
+}

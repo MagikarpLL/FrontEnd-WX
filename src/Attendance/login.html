@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="../Common/JS/utils.js"></script>
+<script src="../Common/JS/encryptionutils.js"></script>
+<script src="../Common/JS/networkaffairs.js"></script>
+<meta name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="./css/Attendance.css">
+<script>
+   function loginAction(name,password) {
+       N.getAction("login.action",{
+           username: name,
+           password: E.encodePassword(password),
+           client : "40",
+           version: "3.6.0.20470"
+       },function (op){
+           if(op){
+               window.location.href = "scene.html";
+               sessionStorage.setItem("operatorKey",op.keyCode);
+               sessionStorage.setItem("operatorName",op.realname);
+               sessionStorage.setItem("operatorID",op.id);
+           }
+       },function (msg) {
+           var d = JSON.parse(msg)
+           alert(d.m);
+       });
+
+       return;
+
+       var xhr = new XMLHttpRequest();
+       var encodePassword = E.encodePassword(password);
+//       var encodePassword = password;
+       xhr.open("post", "http://dev.indoorstar.com:6630/ids/login.action?username="+name+"&password="+encodePassword+"&client=40&version=3.6.0.20470", true);
+       xhr.onload = function () {
+           console.log(this.responseText);
+           var data = JSON.parse(this.responseText);
+//           alert('success.');
+//           sessionStorage.setItem("key",data);
+           for(var i in data){
+               sessionStorage.setItem(i,data[i]);
+           }
+//               document.write(i + '：' + data[i]+"<br />")
+//           }
+           window.location.href = "scene.html";
+//           for(var i in data){
+//               document.write(i + '：' + data[i]+"<br />")
+//           }
+       };
+       xhr.onerror = function () {
+           alert('error making the request.');
+       };
+
+       xhr.send();
+   }
+
+
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>登陆</title>
+</head>
+<body>
+    用户名：<input class="textboard" type="text" id = "name"/> </br>
+    密 码：<input class="textboard" type="password" id = "password"/></br>
+    <button  class="textboard" onclick="loginAction(document.getElementById('name').value,document.getElementById('password').value)">登陆</button></br>
+    <!--<a href="http://passport.baidu.com/" data-tid=1001 target=_blank> 帐号设置 </a>-->
+
+</body>
+</html>

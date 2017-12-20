@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>财务报销</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../Common/JS/utils.js"></script>
+    <script src="../Common/JS/encryptionutils.js"></script>
+    <script src="../Common/JS/networkaffairs.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes" />
+</head>
+<body onload="load()">
+<div class="out_button top_btn">
+    <a  onclick="gotoExplain()" class="linkButton" href="javascript:viod(0)">报销申请说明</a>
+</div>
+<div class="out_button center_btn">
+    <a  onclick="gotoCity()" class="linkButton" href="javascript:viod(0)">外业报销申请</a>
+</div>
+</body>
+</html>
+<script>
+    function gotoCity() {
+        if (sessionStorage.getItem("operatorID") == undefined) {
+            alert("用户信息未加载完成,请稍后点击!");
+        } else {
+            window.location.href = "html/cityList.html"
+            sessionStorage.setItem("source", 1);
+        }
+    }
+    function load() {
+        var id=  sessionStorage.getItem("operatorID");
+        if (id == undefined) {
+            serilizeURL(window.location.href);
+        }
+        if (sessionStorage.getItem("financeCollet") == 1) {
+            var div = $("<div class='out_button bottom_btn'> <a class='linkButton' href='javascript:viod(0)' onclick='gotoCollect()'>报销查询</a> </div>")
+            $(".out_button").after(div);
+        }
+    }
+    function serilizeURL(url){
+//        var div = $("<div class='out_button bottom_btn'> <a class='linkButton' href='javascript:viod(0)' onclick='gotoCollect()'>报销查询</a> </div>")
+//        $(".out_button").after(div);
+//        sessionStorage.setItem("operatorKey", "47007529-0413-4C5E-9268-35D6F9211991");
+//     sessionStorage.setItem("operatorName", "余凡");
+//     sessionStorage.setItem("operatorID", "341");
+        var rs=url.split("?")[1];
+        if(rs==undefined){
+            alert("请从手机微信公众号进入！");
+            return;
+        }
+        var arr=rs.split("&");
+        var json={};
+        for(var i=0;i<arr.length;i++){
+            if(arr[i].indexOf("=")!=-1){
+                json[arr[i].split("=")[0]]=arr[i].split("=")[1];
+            }
+            else{
+                json[arr[i]]="undefined";
+            }
+        }
+        var code = json["code"];
+        N.getWXAction("corp/login",{
+            appId:4,
+            code:code
+        },function (operator) {
+            if (operator.errcode > 0) {
+                alert("非有效用户");
+            } else {
+                sessionStorage.setItem("operator",JSON.stringify(operator));
+                sessionStorage.setItem("operatorKey", operator.operatorKeyCode);
+                sessionStorage.setItem("operatorName", operator.operatorName);
+                sessionStorage.setItem("operatorID", operator.operatorId);
+                if (sessionStorage.getItem("financeCollet") != 1) {
+                    for (var typeIndex in operator.operatorAuthTypes) {
+                        var type = operator.operatorAuthTypes[typeIndex];
+                        if (type == 10530 || type == 1040 || type == 100 || type == 10) {
+                            var div = $("<div class='out_button bottom_btn'> <a class='linkButton' onclick='gotoCollect()'>报销查询</a> </div>")
+                            $(".out_button").after(div);
+                            sessionStorage.setItem("financeCollet",1);
+                            break;
+                        }
+                    }
+                }
+            }
+        },function (msg) {
+            var d = JSON.parse(msg)
+            alert(d.m);
+        })
+    }
+    function gotoCollect() {
+        if (sessionStorage.getItem("operatorID") == undefined) {
+            alert("用户信息未加载完成,请稍后点击!");
+            return;
+        }
+        N.getAction("operatorsList.action",{
+            operatorKey:sessionStorage.getItem("operatorKey")
+        },function (operatorList) {
+            sessionStorage.setItem("operatorList",JSON.stringify(operatorList));
+            N.getAction("listCity.action",{
+                operatorKey:sessionStorage.getItem("operatorKey")
+            },function (cityList) {
+                var temp = [];
+                for(var opIndex in operatorList) {
+                    var op = operatorList[opIndex];
+                    if (temp.indexOf(op.cityId) == -1) {
+                        temp.push(op.cityId);
+                    }
+                }
+                var cityToId = new Array();
+                for (var cityIndex in cityList) {
+                    var city = cityList[cityIndex];
+                    for (var idIndex in temp) {
+                        if (temp[idIndex] == city.id){
+                            cityToId.push(city);
+                        }
+                    }
+                }
+                sessionStorage.setItem("cityToId",JSON.stringify(cityToId));
+                self.location.href = "html/financeCollect.html";
+            },function (errcode) {
+                alert(errcode);
+            })
+        },function (errcode) {
+            alert(errcode);
+        })
+
+    }
+    function gotoExplain() {
+        self.location.href = "html/ApplyDetail.html";
+    }
+</script>

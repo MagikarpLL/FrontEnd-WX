@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>选择</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./css/Attendance.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/1.8.3/jquery.js"></script>
+    <script src="../Common/JS/utils.js"></script>
+    <script src="../Common/JS/encryptionutils.js"></script>
+    <script src="../Common/JS/networkaffairs.js"></script>
+</head>
+<script>
+    function load() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+
+        console.log(operatorID);
+
+        if (operatorID == undefined) {
+            serilizeURL(window.location.href);
+        }
+        if(sessionStorage.getItem("attendanceQuery") == 1){
+            var div = $("<div class='out_button bottom_btn'> <a class='linkButton'  onclick='gotoAttendanceQuery()'>考勤汇总</a> </div>")
+            $(".out_button").after(div);
+        }
+    }
+    function serilizeURL(url){
+     //    var div = $("<div class='out_button bottom_btn'> <a class='linkButton'  onclick='gotoAttendanceQuery()'>考勤汇总</a> </div>")
+     //    $(".out_button").after(div);
+     // sessionStorage.setItem("operatorKey", "47007529-0413-4C5E-9268-35D6F9211991");
+     // sessionStorage.setItem("operatorName", "余凡");
+     // sessionStorage.setItem("operatorID", "341");
+     // console.log(url);
+
+        var rs=url.split("?")[1];
+        if(rs==undefined){
+            alert("请从手机微信公众号进入！");
+//            return;
+        }
+        var arr=rs.split("&");
+        var json={};
+        for(var i=0;i<arr.length;i++){
+            if(arr[i].indexOf("=")!=-1){
+                json[arr[i].split("=")[0]]=arr[i].split("=")[1];
+            }
+            else{
+                json[arr[i]]="undefined";
+            }
+        }
+        var code = json["code"];
+        N.getWXAction("corp/login",{
+            appId:3,
+            code:code
+        },function (operator) {
+            if (operator.errcode > 0) {
+                alert("非有效用户");
+            } else {
+                sessionStorage.setItem("operator",JSON.stringify(operator));
+                sessionStorage.setItem("operatorKey", operator.operatorKeyCode);
+                sessionStorage.setItem("operatorName", operator.operatorName);
+                sessionStorage.setItem("operatorID", operator.operatorId);
+                if(sessionStorage.getItem("attendanceQuery") != 1) {
+                    for (var typeIndex in operator.operatorAuthTypes) {
+                        var type = operator.operatorAuthTypes[typeIndex];
+                        if (type == 10520 || type == 1040 || type == 100 || type == 10) {
+                            var div = $("<div class='out_button bottom_btn'> <a class='linkButton' href='javascript:viod(0)' onclick='gotoAttendanceQuery()'>考勤汇总</a> </div>")
+                            $(".out_button").after(div);
+                            sessionStorage.setItem("attendanceQuery",1);
+                            break;
+                        }
+                    }
+                }
+            }
+        },function (msg) {
+            var d = JSON.parse(msg)
+            alert(d.m);
+        })
+
+    }
+
+    function load2() {
+        document.write("ceshi"+"<br />")
+    }
+
+    function outdoorA() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+        if(operatorID== undefined){
+            alert("用户信息未加载完成,请稍后点击!");
+            return;
+        }
+        self.location.href = "outdoorAttendance.html";
+    }
+    function indoorA() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+        if(operatorID== undefined){
+            alert("用户信息未加载完成,请稍后点击!");
+            return;
+        }
+        self.location.href = "indoorAttendance.html";
+    }
+
+    function gotoAttendanceQuery() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+        if(operatorID== undefined){
+            alert("用户信息未加载完成,请稍后点击!");
+            return;
+        }
+        N.getAction("operatorsList.action",{
+            operatorKey:sessionStorage.getItem("operatorKey")
+        },function (operatorList) {
+            sessionStorage.setItem("operatorList",JSON.stringify(operatorList));
+            N.getAction("listCity.action",{
+                operatorKey:sessionStorage.getItem("operatorKey")
+            },function (cityList) {
+                var temp = [];
+                for(var opIndex in operatorList) {
+                    var op = operatorList[opIndex];
+                    if (temp.indexOf(op.cityId) == -1) {
+                        temp.push(op.cityId);
+                    }
+                }
+                var cityToId = new Array();
+                for (var cityIndex in cityList) {
+                    var city = cityList[cityIndex];
+                    for (var idIndex in temp) {
+                        if (temp[idIndex] == city.id){
+                            cityToId.push(city);
+                        }
+                    }
+                }
+                sessionStorage.setItem("cityToId",JSON.stringify(cityToId));
+                sessionStorage.setItem("operatorList",JSON.stringify(operatorList));
+                self.location.href = "attendanceQuery.html";
+            },function (errcode) {
+                alert(errcode);
+            })
+        },function (errcode) {
+            alert(errcode);
+        })
+    }
+</script>
+
+<body onload="load()">
+<div class="out_button top_btn">
+    <button class="linkButton" onclick="outdoorA()">外业</button></div>
+<div class="out_button center_btn">
+    <button class="linkButton" onclick="indoorA()">内业</button></div>
+</body>
+</html>

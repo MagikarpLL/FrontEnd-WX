@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>外业</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="https:/res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+    <script src="../Common/JS/utils.js"></script>
+    <script src="../Common/JS/encryptionutils.js"></script>
+    <script src="../Common/JS/networkaffairs.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/jquery/1.8.3/jquery.js"></script>
+    <link rel="stylesheet" href="./css/Attendance.css">
+    <link rel="stylesheet" href="./css/showLoading.css">
+</head>
+
+<style>
+    .textarea_style:first-line{
+        color: red;
+    }
+</style>
+
+<script>
+    var attendance;
+    var loading;
+    var latitude;
+    var longitude;
+    function layout() {
+        sessionStorage.setItem("isLayOut",1);
+        self.location.href = "cityList.html";
+    }
+    function finalCheck() {
+        sessionStorage.setItem("isLayOut",0);
+        window.location.href = "cityList.html";
+    }
+    function time() {
+        loading=document.getElementById("showLoading");
+        loading.hidden = true;
+
+        var name = sessionStorage.getItem("operatorName");
+        document.getElementById("name").innerHTML = name;
+
+        var date = new Date();
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        var D = date.getDate() + ' ';
+        var h = date.getHours() + ':';
+        var m = date.getMinutes() + ':';
+        var s = date.getSeconds();
+//        var ss = date.getMilliseconds();
+        document.getElementById('nowDateTimeSpan').innerHTML = Y+M+D+h+m+s;
+
+        var isDelay = sessionStorage.getItem("isDelay");
+        attendance = sessionStorage.getItem("att");
+
+        var parent=document.getElementById("progress");
+        var parents = document.getElementById("progress1");
+        parents.hidden = true;
+//        var finalAtt = sessionStorage.getItem("finalAtt");
+        if(isDelay==1){
+           var temp = "部署已延误，请及时完成部署！\n"+attendance;
+            parent.hidden = true;
+            parents.hidden = false;
+            var child=document.createTextNode(temp);
+            parents.appendChild(child);
+        }else {
+
+            if (attendance != null) {
+                var parent = document.getElementById("progress");
+                var child = document.createTextNode(attendance);
+                parent.appendChild(child);
+            }
+        }
+
+        getLocation1();
+
+    }
+
+    function enter() {
+        var note = document.getElementById("note").value;
+        if(attendance==null){
+            alert("请填写进度后再签到！");
+            return;
+        }
+        var uploadNote = note +"\n"+attendance;
+        var  operatorKey =  sessionStorage.getItem("operatorKey");
+        var operatorId = sessionStorage.getItem("operatorID");
+        var time = new Date().getTime();
+        var logString = {
+            "operatorId":operatorId,
+            "workType":2,
+            "time":time,
+            "note":uploadNote,
+            "lat":latitude,
+            "lng":longitude,
+        }
+        var str = JSON.stringify(logString);
+        var log = encodeURI(str);
+//       var log = JSON.parse(str)
+
+        N.getAction("addOperatorAttendanceLog.action",{
+            operatorKey:operatorKey,
+            operatorAttendanceLog:log
+        },function (msg) {
+            alert("签到成功！");
+        },function (msg) {
+            var d = JSON.parse(msg)
+            alert(d.m);
+        })
+    }
+    function getLocation1() {
+//        latitude = 31.199678276909719;
+//         longitude = 121.58298014322919;
+////    &coord_type=6
+//        $.ajax({
+//            url:"http://apis.map.qq.com/ws/geocoder/v1/?location=" +latitude+ "," +longitude+
+//            "&key=WAMBZ-U523F-3LFJ2-J576N-5IDUE-L2BPU&output=jsonp&callback=calllocation",
+//            type:"GET",
+//            dataType:'jsonp',
+//            jsonp:'calllocation'
+//        });
+//        return;
+        var timesTamp = new Date().getTime();
+//        console.log(timesTamp);
+
+        var len = len || 16;
+        var $chars = 'ABCDEFGHIJKMNOPQRSTUVWXYZabcdefghijkmnlopqrstuvwxyz1234567890';
+        var maxPos = $chars.length;
+        var pwd = '';
+        for (i = 0; i < len; i++) {
+            pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+        }
+//        console.log(pwd);
+//        timesTamp = 1503391737873;
+//        pwd = "k5kzq9nTQFdHGjG5";
+        N.getWXAction("get_jsapi_ticket",{
+            appId:3
+        },function (msg) {
+    if(msg.ticket == undefined){
+        return;
+    }
+            var ticket = msg.ticket;
+            var sign = getSign(pwd,ticket,timesTamp)
+            wx.config({
+                debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: 'ww3e573389ab637ec1', // 必填，企业微信的cropID
+                timestamp:timesTamp , // 必填，生成签名的时间戳
+                nonceStr: pwd, // 必填，生成签名的随机串
+                signature: sign,// 必填，签名，见附录1
+                jsApiList: ["getLocation"] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            });
+            wx.ready(function(){
+                wx.getLocation({
+                    type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                    success: function (res) {
+                        latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                        longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                        var speed = res.speed; //速度，以米/每秒计
+                        var accuracy = res.accuracy; // 位置精度
+                        $.ajax({
+                            url:"http://apis.map.qq.com/ws/geocoder/v1/?location=" +latitude+ "," +longitude+
+                            "&coord_type=5&key=WAMBZ-U523F-3LFJ2-J576N-5IDUE-L2BPU&output=jsonp&callback=calllocation",
+                            type:"GET",
+                            dataType:'jsonp',
+                            jsonp:'calllocation'
+                        });
+                    },
+                    fail:function (res) {
+//                        alert(res);
+                    }
+                });
+            });
+            wx.error(function(res) {
+//                alert(res);
+            });
+        },function (msg) {
+            var d = JSON.parse(msg)
+            alert(d.m);
+        })
+
+
+    }
+
+    function getSign(noncestr,jsapi_ticket,time) {
+       var url = $(location).attr('href');
+        var string = "jsapi_ticket="+jsapi_ticket+"&noncestr="+noncestr+"&timestamp="+time+"&url="+window.location.href;
+        return E.SHA1(string);
+
+    }
+    function refresh() {
+        loading.hidden = false;
+        getLocation1();
+    }
+    function calllocation(data) {
+//        alert(data.result.address);
+        var name = data.result.formatted_addresses.rough;
+        var address = data.result.formatted_addresses.recommend;
+//        alert(address);
+        document.getElementById('address').innerHTML = address;
+        loading.hidden = true;
+    }
+
+</script>
+<body onload="time()"  >
+<div id="mainContent">
+    <div id="showLoading" class="spinner">
+        <div class="spinner-container container1">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+        </div>
+        <div class="spinner-container container2">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+        </div>
+        <div class="spinner-container container3">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+        </div>
+    </div>
+    <form class="formPadding" id="outdoor">
+        <div class="commonDiv">
+            <div class="insideDiv">姓名: <span class="" id="name"></span></div>
+            <div></div>
+        </div>
+        <div class="commonDiv">
+            <div class="insideDiv">时间: <span class="" id="nowDateTimeSpan"></span></div>
+
+        </div>
+        <div class="commonDiv">
+            <div class="insideDiv">地点:<span id="address"></span><input class="refreshButton" type="image" src="../Common/Resources/refresh.jpg"  onclick="refresh()"></div>
+            <div></div>
+        </div>
+        <div class="noteDiv">
+            <div>备注:</div>
+            <div >
+                <textarea  class="relativeOverall" id="note" rows="3" cols="30"></textarea>
+            </div>
+
+        </div >
+        <div class="progressDiv">进度:
+                <input type="button" style="border:1px solid #000" value="部署"
+                       onclick="layout()">
+                <input type="button" style="border:1px solid #000"  value="终验"
+                       onclick="finalCheck()">
+            <!--<button onclick="layout()">部署</button>-->
+            <!--<button onclick="finalCheck()">终验</button>-->
+        </div>
+        <div class="progressDiv">
+                <!--<input id="progress" rows="10" cols="30">-->
+                <textarea class="relativeOverall textarea_style" id="progress1"  disabled="true" rows="10" cols="30"></textarea>
+                <textarea class="relativeOverall" id="progress"  disabled="true" rows="10" cols="30"></textarea>
+        </div>
+        <div class="progressDiv">
+            <input  class="relativeOverall" id="submintBtn" onclick="enter()" type="button" value="签到"/>
+        </div>
+    </form>
+</div>
+</body>
+</html>

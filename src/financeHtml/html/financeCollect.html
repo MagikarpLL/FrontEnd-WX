@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>财务汇总</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../Common/JS/utils.js"></script>
+    <script src="../../Common/JS/encryptionutils.js"></script>
+    <script src="../../Common/JS/networkaffairs.js"></script>
+    <script src="../js/financeJs.js"></script>
+</head>
+<body onload="onload()">
+<div class="modal" style="display: none" id="loadingGif">
+    <div class="loading">
+        <img src="../img/load.gif" alt="加载中..."/>
+    </div>
+</div>
+<ul class="collect_info">
+    <li class="startTime_info">
+        <div class="startTime_leftInfo">
+            开始时间:
+        </div>
+        <div class="startTime_rightInfo">
+            <input type="date" class="startTime_input">
+        </div>
+    </li>
+    <li class="endTime_info">
+        <div class="endTime_leftInfo">
+            结束时间:
+        </div>
+        <div class="endTime_rightInfo">
+            <input type="date" class="endTime_input">
+        </div>
+    </li>
+    <li class="city_info">
+        <div class="city_leftInfo">
+            地点:
+        </div>
+        <div class="city_rightInfo">
+            <select name="city" id="city_select">
+                <option value="-1" selected="selected">全部</option>
+            </select>
+        </div>
+    </li>
+    <li class="search_info">
+        <img src="../img/search.png" class="search_button" >
+    </li>
+</ul>
+</body>
+</html>
+<script>
+    var cityToId = JSON.parse(sessionStorage.getItem("cityToId"));
+    var operatorList = JSON.parse(sessionStorage.getItem("operatorList"));
+    var startTimeInput = document.getElementsByClassName("startTime_input")[0];
+    var endTimeInput = document.getElementsByClassName("endTime_input")[0];
+    var citySelect = document.getElementById("city_select");
+    function onload() {
+        for(var cityIndex in cityToId){
+            var city = cityToId[cityIndex];
+            var select = $("<option value='"+city.id+"'>"+city.name+"</option>")
+            $("#city_select").append(select)
+        }
+    }
+
+    $(".search_button").click(function () {
+        var value = $("#city_select").val();
+        if (isNaN(getTimeWithDateString(startTimeInput.value))){
+            alert("请填写开始时间!");
+            return;
+        }
+        if (isNaN(getTimeWithDateString(endTimeInput.value))){
+            alert("请填写结束时间!");
+            return;
+        }
+        showLoading();
+        var s = getTimeWithDateString(startTimeInput.value) - 3600000 * 8;
+        var e = getTimeWithDateString(endTimeInput.value) + 3600000 * 16;
+        N.getAction("queryOperatorExpenseItems.action",{
+            operatorKey:sessionStorage.getItem("operatorKey"),
+            startTime:s,
+            endTime:e
+        },function (financeList) {
+            closeLoading();
+            $("li.collect").remove();
+            if (financeList.length == 0) {
+                alert("暂无数据!");
+            } else {
+                var dataArray = getDataArray(financeList);
+                for (var cIndex in dataArray) {
+                    var collect = dataArray[cIndex];
+                    var li = $("<li class='collect'>" +
+                            "<div class='collect_allInfo'>" +
+                            " <div class='collect_leftInfo'>" +
+                            " <div class='collect_name'>"+collect.name+" </div>" +
+                            " <div class='long_acount'> 长途费用:"+collect.longDistanceFare+"元</div>" +
+                            " <div class='meal_acount'> 餐费:"+collect.mealFare+"元 </div> " +
+                            "<div class='salary_acount'> 雇工费:"+collect.salaryEarnerFare+" 元</div>" +
+                            " <div class='null_leftInfo'> &nbsp </div> " +
+                            "</div> <div class='collect_rightInfo'>" +
+                            " <div class='null_rightInfo'> &nbsp </div> " +
+                            "<div class='short_acount'> 短途费用:"+collect.shortDistanceFare+"元 </div> " +
+                            "<div class='sleep_acount'> 住宿费:"+collect.stayFare+"元 </div>" +
+                            " <div class='other_acount'> 杂费:"+collect.otherFare+" 元</div> " +
+                            "<div class='all_acount'> 合计:"+collect.allFare+"元 </div> " +
+                            "</div>" +
+                            " </div>" +
+                            " </li>")
+                    $(".collect_info").append(li);
+
+                }
+            }
+        },function (errCode) {
+            closeLoading();
+            alert(errCode);
+        })
+    })
+
+    function getDataArray(list) {
+        var value = $("#city_select").val();
+        var temp = new Array();
+        var dataArray = new Array();
+        for (var fIndex in list){
+            var finance = list[fIndex];
+            if (value == -1) {
+                if (temp.indexOf(finance.operatorId) == -1){
+                    temp.push(finance.operatorId);
+                }
+            } else {
+                if (temp.indexOf(finance.operatorId) == -1){
+                    for (var oIndex in operatorList) {
+                        var operator = operatorList[oIndex];
+                        if (operator.id == finance.operatorId){
+                            if (operator.cityId == value){
+                                temp.push(finance.operatorId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (var tIndex in temp) {
+            var longDistanceFare = 0;
+            var shortDistanceFare = 0;
+            var mealFare = 0;
+            var stayFare = 0;
+            var salaryEarnerFare = 0;
+            var otherFare = 0;
+            var name;
+            for (lIndex in list) {
+                var finance = list[lIndex];
+                if (finance.operatorId == temp[tIndex]){
+                    name = finance.operatorName;
+                    switch (finance.expenseType) {
+                        case 10:
+                            longDistanceFare = addNum(longDistanceFare,finance.amount);
+                            break;
+                        case 20:
+                            shortDistanceFare = addNum(shortDistanceFare,finance.amount);
+                            break;
+                        case 30:
+                            mealFare = addNum(mealFare,finance.amount);
+                            break;
+                        case 40:
+                            stayFare = addNum(stayFare,finance.amount);
+                            break;
+                        case 50:
+                            salaryEarnerFare = addNum(salaryEarnerFare,finance.amount);
+                            break;
+                        case 99:
+                            otherFare = addNum(otherFare,finance.amount);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            var collect = createObj(name,longDistanceFare, shortDistanceFare,mealFare,stayFare,salaryEarnerFare,otherFare);
+            dataArray.push(collect);
+        }
+        if (dataArray.length != 0) {
+            var all_longDistanceFare = 0;
+            var all_shortDistanceFare = 0;
+            var all_mealFare = 0;
+            var all_stayFare = 0;
+            var all_salaryEarnerFare = 0;
+            var all_otherFare = 0;
+            var all_allFare = 0;
+            for (var dIndex in dataArray) {
+                var model = dataArray[dIndex];
+                all_longDistanceFare = addNum(all_longDistanceFare,model.longDistanceFare) ;
+                all_shortDistanceFare = addNum(all_shortDistanceFare,model.shortDistanceFare) ;
+                all_mealFare = addNum(all_mealFare, model.mealFare);
+                all_stayFare =addNum(all_stayFare, model.stayFare);
+                all_salaryEarnerFare = addNum(all_salaryEarnerFare, model.salaryEarnerFare);
+                all_otherFare = addNum(all_otherFare, model.otherFare);
+                all_allFare =  addNum(all_allFare, model.allFare);
+            }
+            var allModel = createObj("合计",all_longDistanceFare,all_shortDistanceFare,all_mealFare,all_stayFare,all_salaryEarnerFare,all_otherFare);
+            dataArray.push(allModel);
+        }
+        return dataArray;
+    }
+    function createObj(name,longDistanceFare, shortDistanceFare,mealFare,stayFare,salaryEarnerFare,otherFare){
+        var obj = new Object(); //创建对象
+
+        obj.name = name;
+        obj.longDistanceFare = longDistanceFare.toFixed(2);
+        obj.shortDistanceFare = shortDistanceFare.toFixed(2);
+        obj.mealFare = mealFare.toFixed(2);
+        obj.stayFare = stayFare.toFixed(2);
+        obj.salaryEarnerFare = salaryEarnerFare.toFixed(2);
+        obj.otherFare = otherFare.toFixed(2);
+        obj.allFare = addNum(addNum(addNum(addNum(addNum(longDistanceFare,shortDistanceFare),mealFare),stayFare),salaryEarnerFare),otherFare);
+        return obj; //返回对象
+    }
+    function addNum (num1, num2) {
+        var sq1,sq2,m;
+        try {
+            sq1 = num1.toString().split(".")[1].length;
+        }
+        catch (e) {
+            sq1 = 0;
+        }
+        try {
+            sq2 = num2.toString().split(".")[1].length;
+        }
+        catch (e) {
+            sq2 = 0;
+        }
+        m = Math.pow(10,Math.max(sq1, sq2));
+        return (num1 * m + num2 * m) / m;
+    }
+    function showLoading() {
+        $("#loadingGif").css('display','block');
+    }
+
+    function closeLoading() {
+        $("#loadingGif").css('display','none');
+    }
+</script>

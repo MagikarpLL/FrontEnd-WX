@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>报销列表</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes" />
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+    <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+    <script src="../../Common/JS/utils.js"></script>
+    <script src="../../Common/JS/encryptionutils.js"></script>
+    <script src="../../Common/JS/networkaffairs.js"></script>
+    <script src="../js/financeJs.js"></script>
+</head>
+
+<body onload="getFinanceList(sessionStorage.getItem('mallID'))">
+<div data-role="page">
+    <div data-role="header">
+        <h1>报销列表</h1>
+        <span class="add">添加</span>
+        <span class="editor">编辑</span>
+    </div>
+    <!-- /header -->
+    <div data-role="content">
+        <ul id="list" data-role="listview" data-inset="true">
+        </ul>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    var deleteAccount = 0;
+    var financeArray;
+    function getFinanceList(mallId) {
+        N.getAction("queryOperatorExpenseItems.action",{
+            mallIds:mallId,
+            operatorIds:sessionStorage.getItem("operatorID"),
+            operatorKey:sessionStorage.getItem("operatorKey")
+        },function(financeList) {
+            if(financeList.length == 0) {
+                alert("暂无数据!")
+                return;
+            }
+            financeArray = financeList;
+            for (var financeIndex in financeList){
+                var finance = financeList[financeList.length - 1 - financeIndex];
+                var typeIdx = finance.expenseType;
+                var expenseType;
+                var time = getLocalTimeWithNoHour(finance.time);
+                var amount = finance.amount;
+                var status = finance.checkStatus;
+                var statusNote;
+                var note = finance.checkNote;
+                var str = JSON.stringify(finance);
+                switch (typeIdx) {
+                    case 10:
+                        expenseType = "长途车费";
+                        break;
+                    case 20:
+                        expenseType = "短途车费";
+                        break;
+                    case 30:
+                        expenseType = "餐费";
+                        break;
+                    case 40:
+                        expenseType = "住宿费";
+                        break;
+                    case 50:
+                        expenseType = "雇工费";
+                        break;
+                    case 99:
+                        expenseType = "杂费";
+                        break;
+                }
+                switch (status) {
+                    case 0:
+                        statusNote = "未审核";
+                        break;
+                    case 1:
+                        statusNote = "通过";
+                        break;
+                    case 2:
+                        statusNote = "拒绝";
+                        break;
+                    case 3:
+                        statusNote = "待定";
+                        break;
+                }
+                if (note == undefined) {
+                    var list = $("<li><a onclick='gotoDetail(" + str + ")' class='go_finance'>" +
+                            "<div class='allInfo'>" +
+                            "<div class='leftInfo'>" +
+                            "<div class='fianceType'> "+ expenseType + " </div>" +
+                            "<div class='fianceTime'>"+ time +" </div>" +
+                            "</div>" +
+                            "<div class='rightInfo'>" +
+                            "<div class='fiancePrice'> "+amount+" 元</div>" +
+                            "<div class='fianceStatus current'> " + statusNote +"</div>" +
+                            "</div>" +
+                            "</div>" +
+                            "</a>" +"<span onclick='deleteFinance("+financeIndex+",this)' class='del'>删除</span>"+
+                            "</li>");
+                } else  {
+                    var list = $("<li><a onclick='gotoDetail("+ str +")' class='go_finance'>" +
+                            "<div class='allInfo'>" +
+                            "<div class='leftInfo'>" +
+                            "<div class='fianceType'> "+ expenseType + " </div>" +
+                            "<div class='fianceTime'>"+ time +" </div>" +
+                            "</div>" +
+                            "<div class='rightInfo'>" +
+                            "<div class='fiancePrice'> "+amount+" 元</div>" +
+                            "<div class='fianceStatus current'> " + statusNote +"</div>" +
+                            "</div>" +
+                            "</div>" +
+                            "<div class='checknote_info'>"+ note +"</div>" +
+                            "</a>" +"<span onclick='deleteFinance("+financeIndex+",this)' class='del'>删除</span>"+
+                            "</li>");
+                }
+                $("#list").append(list).find("li:last").hide();
+                $('ul').listview('refresh');
+                $("#list").find("li:last").slideDown(300);
+            }
+        },function (xhr) {
+            alert("failure");
+        });
+    }
+    function gotoDetail(selectFinance) {
+        var str = JSON.stringify(selectFinance);
+        var status = selectFinance.checkStatus;
+        sessionStorage.setItem("selectFinance",str);
+        if (status == 1 || status == 3) {
+            self.location.href = "finance.html?add=-1"
+        } else  {
+            self.location.href = "finance.html?add=0"
+        }
+    }
+    function deleteFinance(index, delBtn) {
+        var liIndex = $(delBtn).parents("li").index();
+        var selFinance = financeArray[financeArray.length - 1 - index];
+        if (selFinance.checkStatus == 1 || selFinance.checkStatus == 3) {
+            alert("待定与通过状态无法进行删除操作!");
+        } else {
+            N.getAction("deleteOperatorExpenseItem.action", {
+                itemId:selFinance.id,
+                operatorKey:sessionStorage.getItem("operatorKey")
+            },function (successDic) {
+                document.getElementsByTagName('ul')[0].removeChild(document.getElementsByTagName('ul')[0].getElementsByTagName('li')[liIndex]);
+                deleteAccount = deleteAccount +1;
+            },function (errCode) {
+                alert(errCode);
+            })
+        }
+    }
+    var i=0
+    $(".editor").click(function () {
+        if(i==0){
+            $('#list li').addClass('current');
+            i=1
+        }else{
+            $('#list li').removeClass('current');
+            i=0
+        }
+
+    })
+    $(".add").click(function (){
+        window.location.href = "finance.html?add=1";
+        sessionStorage.setItem("selectFinance", 0);
+    })
+</script>

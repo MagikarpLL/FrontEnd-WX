@@ -1,0 +1,80 @@
+#mainContent{
+    /*background: orange;*/
+    margin-top: 30px;
+    width: 500px;
+    /*margin-left: 20%;*/
+}
+
+#mainContent .row{
+    /*background: blueviolet;*/
+    margin-top: 10px;
+    height: auto;
+    line-height: 30px;
+    font: arial;
+    font-size: 13px;
+
+}
+
+#mainContent .row div{
+    /*background: cyan;*/
+    float: left;
+    display: inline-block;
+    width:  90px;
+    text-align: right;
+    font: arial;
+    font-size: 13px;
+}
+
+#mainContent .row input{
+    /*float: left;*/
+    /*background: olive;*/
+    height: 25px;
+    width: 180px;
+    border: 1px solid #666666;
+    border-radius: 5px;
+    font: arial;
+    font-size: 13px;
+    margin-left: 10px;
+}
+
+#mainContent .row input:hover{
+    border: 1px solid deepskyblue;
+}
+
+#mainContent .row .choose{
+    width: auto;
+    height: 15px;
+    line-height: 30px;
+
+}
+
+#mainContent .row select{
+    margin-left: 10px;
+}
+
+#mainContent .self{
+    /*background: greenyellow;*/
+    margin-left: 30px;
+}
+
+#mainContent .row textarea{
+    /*background: gold;*/
+    /*margin-left: 50px;*/
+    border: 1px solid #666666;
+
+}
+
+#mainContent  #submintBtn{
+    background: #666666;
+    width:120px;
+    /*margin-top: 100px;*/
+    margin-left: 110px;
+}
+
+#mainContent  #submintBtn:hover{
+    background: deepskyblue;
+}
+
+#layoutHead span{
+    /*float:right*/
+}

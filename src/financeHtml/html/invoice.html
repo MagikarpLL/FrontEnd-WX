@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="../../Common/JS/utils.js"></script>
+    <script src="../../Common/JS/encryptionutils.js"></script>
+    <script src="../../Common/JS/networkaffairs.js"></script>
+    <script src="../js/financeJs.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+    <link rel="stylesheet" href="../html5-canvas-loading/css/reset.css">
+    <link rel="stylesheet" href="../html5-canvas-loading/css/style.css" media="screen" type="text/css" />
+    <title>发票产生</title>
+    <style type="text/css">
+        .modal {
+            position:fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .loading{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -43px;
+            margin-left: -43px
+        }
+    </style>
+</head>
+
+<body onload="onload()">
+<div class="modal" style="display: none" id="loadingGif">
+    <div class="loading">
+        <img src="../img/load.gif" alt="加载中..."/>
+    </div>
+</div>
+<form action="#" class="fiance_info">
+    <ul id="finance_list" class="fiance_apply">
+        <li class="apply_date">
+            <div class="date_leftInfo">
+                发生日期:
+            </div>
+            <div class="date_rightInfo">
+                <input id="date" class="time_info" type="date">
+            </div>
+        </li>
+        <li class="apply_price">
+            <div class="price_leftInfo">
+                报销金额(单位元):
+            </div>
+            <div class="price_rightInfo">
+                <!--<input class="price_info" type="number" step="0.01">-->
+                <input id="price" class="price_info" type="text" onkeyup="this.value=/^\d+\.?\d{0,2}$/.test(this.value) ?
+                     this.value : ''" placeholder="0.00">
+            </div>
+        </li>
+        <li class="apply_type">
+            <div class="type_leftInfo">
+                报销类型:
+            </div>
+            <div class="type_rightInfo">
+                <select id="typeSelect" name="type" class="type_info">
+                    <option value="10" selected="selected">长途车费</option>
+                    <option value="20">短途车费</option>
+                    <option value="30">餐费</option>
+                    <option value="40">住宿费</option>
+                    <option value="50">雇工费</option>
+                    <option value="99">杂费</option>
+                </select>
+            </div>
+        </li>
+        <li class="apply_detail">
+            <div class="detail_leftInfo">
+                描述:
+            </div>
+            <div class="detail_rightInfo">
+                <textarea id="detailTetx" class="detail_info"></textarea>
+            </div>
+        </li>
+        <li class="apply_addPhoto">
+            <div class="addPhoto_button">
+                <a class="linkButton " onclick="gotoPhoto()">添加照片凭证</a>
+            </div>
+        </li>
+        <li class="apply_finish">
+            <div class="finishApply">
+                <a class="linkButton" onclick="finish()">完成</a>
+            </div>
+        </li>
+    </ul>
+</form>
+</body>
+</html>
+<script>
+    var add;
+    var invoiceIndex;
+    var priceInput = document.getElementById("price");
+    var timeInput = document.getElementById("date");
+    var typeSelect = document.getElementById("typeSelect");
+    var detailTetx = document.getElementById("detailTetx");
+    var addPhotoIds = new Array();
+    var serIds = new Array();
+    var uploadIndex = 0;
+    //  加载数据
+    function onload() {
+        var timesTamp = new Date().getTime();
+        var len = len || 16;
+        var $chars = 'ABCDEFGHIJKMNOPQRSTUVWXYZabcdefghijkmnlopqrstuvwxyz1234567890';
+        var maxPos = $chars.length;
+        var pwd = '';
+        for (i = 0; i < len; i++) {
+            pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+        }
+        N.getWXAction("get_jsapi_ticket",{
+            appId:4
+        },function (msg) {
+            if(msg.ticket == undefined){
+                return;
+            }
+            var ticket = msg.ticket;
+            var sign = getSign(pwd,ticket,timesTamp)
+            wx.config({
+                debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: 'ww3e573389ab637ec1', // 必填，企业微信的cropID
+                timestamp:timesTamp , // 必填，生成签名的时间戳
+                nonceStr: pwd, // 必填，生成签名的随机串
+                signature: sign,// 必填，签名，见附录1
+                jsApiList: ["uploadImage","chooseImage"] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            });
+        },function (msg) {
+            var d = JSON.parse("fail"+ msg)
+            alert(d.m);
+        })
+        var invoice = JSON.parse(sessionStorage.getItem("selectInvoice"));
+        var photolist;
+        if (invoice != null && invoice != 0){
+            photolist = invoice.attachFiles;
+        }
+        add = GetQueryString("add");
+        invoiceIndex = GetQueryString("invoiceIndex");
+        if (invoice != 0 && add != -1) {
+            add = 0;
+        }
+        if(add != 1) {
+            priceInput.value = invoice.amount;
+            var timeDate = getLocalTimeWithNoHour(invoice.time);
+            timeInput.value = timeDate;
+            typeSelect.value = invoice.expenseType;
+            detailTetx.value = invoice.content;
+            }
+        if(invoice.attachFiles != undefined) {
+            for (var photoIndex in photolist) {
+                if (photolist[photoIndex].indexOf("http://www.indoorstar.com:6601/") != -1){
+                    var photoUrl = photolist[photoIndex];
+                } else {
+                    var photoUrl = "http://www.indoorstar.com:6601/"+photolist[photoIndex];
+                }
+                if (add != -1) {
+                    var photoli = $(
+                            "<li class='apply_photo'>" +
+                            "<div>" +
+                            "<img style='width: 100%;display: block' class='img_photo' src=" + photoUrl + ">" +
+                            "</div>" +
+                             "<div class='outImag'>" +
+                                "<img class='deletePhotoBtn' src='../img/delete.png' onclick='deletePhoto(this)'>" +
+                            "</div>"+
+                            "</li>")
+                    $("#finance_list .apply_addPhoto").after(photoli);
+                } else {
+                    var photoli = $("<li class='apply_photo'><div>" +
+                            "<img style='width: 100%' class='img_photo' src=" + photoUrl + ">" +
+                            "</div>" +
+                            "</li>")
+                    $("#finance_list .apply_addPhoto").after(photoli);
+                }
+
+            }
+        }
+            if (add == -1) {
+            var linkButton = document.getElementsByClassName("linkButton")[0];
+            linkButton.text = "照片凭证";
+            linkButton.removeAttribute("onclick");
+
+            var finishButton = document.getElementsByClassName("apply_finish")[0];
+            finishButton.hidden = true;
+        }
+
+    }
+
+    function gotoPhoto() {
+            wx.ready(function(){
+                wx.chooseImage({
+                    count: 9, // 默认9
+                    sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                    sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                    success: function (res) {
+                        var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                        for (var idIndex in localIds) {
+                            var localId = localIds[idIndex];
+                            addPhotoIds.push(localId);
+                            var photoli = $(
+                                    "<li class='apply_photo'>" +
+                                    "<div>" +
+                                    "<img style='width: 100%;display: block' class='img_photo' src=" + localId + ">" +
+                                    "</div>" +
+                                    "<div class='outImag'>" +
+                                    "<img class='deletePhotoBtn' src='../img/delete.png' onclick='deletePhoto(this)'>" +
+                                    "</div>"+
+                                    "</li>")
+                            $("#finance_list .apply_addPhoto").after(photoli);
+                        }
+                    }
+                });
+        },function (msg) {
+            close();
+            var d = JSON.parse(msg)
+            alert(d.m);
+        })
+    }
+
+    //完成
+    function finish() {
+
+        var finance = JSON.parse(sessionStorage.getItem("selectFinance"));
+        var invoice = JSON.parse(sessionStorage.getItem("selectInvoice"));
+        var currentDate = getTimeWithDateString(timeInput.value);
+        var price = priceInput.value;
+        var type = typeSelect.value;
+        var textInfo = detailTetx.value;
+        var timestamp = Date.parse(new Date());
+        var addInvoice;
+        var changeInvoice;
+        if(price == "") {
+            alert("请填写价格!");
+            return;
+        }
+        if (isNaN(currentDate)) {
+            alert("请填写日期");
+            return;
+        }
+        open();
+        if (addPhotoIds.length == 0) {
+            if (add == 1) {
+                addInvoice = {
+                    operatorId: sessionStorage.getItem("operatorID"),
+                    mallId: sessionStorage.getItem("mallID"),
+                    commitTime: timestamp,
+                    sourceType: 1,
+                    time: currentDate,
+                    content: textInfo,
+                    amount: price,
+                    lastModifiedTime: timestamp,
+                    id: 0,
+                    refId: finance.id,
+                    expenseType: type
+                }
+                var addInvoiceStr = JSON.stringify(addInvoice);
+                N.getAction("addOperatorExpenseItem.action", {
+                    operatorKey: sessionStorage.getItem("operatorKey"),
+                    operatorExpenseItem: addInvoiceStr
+                }, function (resultFinance) {
+                    close();
+                    alert("添加成功");
+                    addInvoice = resultFinance;
+                    if (finance.expenseItems == undefined) {
+                        finance.expenseItems = new Array();
+                    }
+                    finance.expenseItems.push(resultFinance);
+                    sessionStorage.setItem("selectInvoice", JSON.stringify(resultFinance));
+                    sessionStorage.setItem("selectFinance", JSON.stringify(finance));
+                    self.location = document.referrer;
+                }, function (errCode) {
+                    close();
+                    alert(errCode);
+                })
+            } else {
+                changeInvoice = {
+                    operatorId: sessionStorage.getItem("operatorID"),
+                    mallId: sessionStorage.getItem("mallID"),
+                    commitTime: timestamp,
+                    sourceType: 1,
+                    time: currentDate,
+                    content: textInfo,
+                    amount: price,
+                    lastModifiedTime: timestamp,
+                    attachFiles:invoice.attachFiles,
+                    id: invoice.id,
+                    refId: finance.id,
+                    expenseType: type
+                }
+                var changeInvoiceStr = JSON.stringify(changeInvoice);
+                N.getAction("updateOperatorExpenseItem.action", {
+                    operatorKey: sessionStorage.getItem("operatorKey"),
+                    operatorExpenseItem: changeInvoiceStr
+                }, function (resultFinance) {
+                    close();
+                    alert("修改成功");
+                    changeInvoice = resultFinance;
+                    sessionStorage.setItem("selectInvoice", JSON.stringify(resultFinance));
+                    finance.expenseItems[finance.expenseItems.length - invoiceIndex - 1] = resultFinance;
+                    sessionStorage.setItem("selectFinance", JSON.stringify(finance));
+                    self.location = document.referrer;
+                }, function (errCode) {
+                    close();
+                    alert(errCode);
+                })
+            }
+        } else {
+            wx.ready(function(){
+                uploadPhothWithIndex(0);
+            });
+        }
+    }
+    function getSign(noncestr,jsapi_ticket,time) {
+        var url = $(location).attr('href');
+        var string = "jsapi_ticket="+jsapi_ticket+"&noncestr="+noncestr+"&timestamp="+time+"&url="+window.location.href;
+        return E.SHA1(string);
+
+    }
+    function uploadPhothWithIndex(photoIndex) {
+        var finance = JSON.parse(sessionStorage.getItem("selectFinance"));
+        var invoice = JSON.parse(sessionStorage.getItem("selectInvoice"));
+        var currentDate = getTimeWithDateString(timeInput.value);
+        var price = priceInput.value;
+        var type = typeSelect.value;
+        var textInfo = detailTetx.value;
+        var timestamp = Date.parse(new Date());
+        var addInvoice;
+        var changeInvoice;
+        add = GetQueryString("add");
+        var addId = addPhotoIds[photoIndex];
+        if (addId.indexOf("wxlocalresource") != -1) {
+            addId = addId.replace("wxlocalresource", "wxLocalResource");
+        }
+        wx.uploadImage({
+            localId: addId, // 需要上传的图片的本地ID，由chooseImage接口获得
+            isShowProgressTips: 0, // 默认为1，显示进度提示
+            success: function (res) {
+                var serverId = res.serverId; // 返回图片的服务器端ID
+                serIds[serIds.length] = serverId;
+                if (uploadIndex == addPhotoIds.length - 1) {
+                    if(add == 1){
+                        addInvoice = {
+                            operatorId: sessionStorage.getItem("operatorID"),
+                            mallId: sessionStorage.getItem("mallID"),
+                            commitTime: timestamp,
+                            sourceType: 1,
+                            time: currentDate,
+                            content: textInfo,
+                            amount: price,
+                            lastModifiedTime: timestamp,
+                            id: 0,
+                            refId: finance.id,
+                            expenseType: type,
+                            attachFiles:serIds
+                        }
+                        var addFinanceStr = JSON.stringify(addInvoice);
+                        N.getAction("addOperatorExpenseItem.action", {
+                            operatorKey:sessionStorage.getItem("operatorKey"),
+                            operatorExpenseItem:addFinanceStr
+                        },function (resultFinance) {
+                            close();
+                            serIds = [];
+                            alert("添加成功");
+                            addInvoice = resultFinance;
+                            if (finance.expenseItems == undefined) {
+                                finance.expenseItems = new Array();
+                            }
+                            finance.expenseItems.push(resultFinance);
+                            sessionStorage.setItem("selectInvoice", JSON.stringify(resultFinance));
+                            sessionStorage.setItem("selectFinance", JSON.stringify(finance));
+                            self.location = document.referrer
+                        },function (errCode) {
+                            close();
+                            serIds = [];
+                            alert(errCode);
+                        })
+                    } else {
+                        var attatch = invoice.attachFiles;
+                        changeInvoice = {
+                            operatorId: sessionStorage.getItem("operatorID"),
+                            mallId: sessionStorage.getItem("mallID"),
+                            commitTime: timestamp,
+                            sourceType: 1,
+                            time: currentDate,
+                            content: textInfo,
+                            amount: price,
+                            lastModifiedTime: timestamp,
+                            id: invoice.id,
+                            refId: finance.id,
+                            expenseType: type,
+                            attachFiles:attatch.concat(serIds)
+                        }
+                        var changeFinanceStr = JSON.stringify(changeInvoice);
+                        N.getAction("updateOperatorExpenseItem.action", {
+                            operatorKey:sessionStorage.getItem("operatorKey"),
+                            operatorExpenseItem:changeFinanceStr
+                        },function (resultFinance) {
+                            close();
+                            alert("修改成功");
+                            serIds = [];
+                            changeInvoice = resultFinance;
+                            sessionStorage.setItem("selectInvoice", JSON.stringify(resultFinance));
+                            finance.expenseItems[finance.expenseItems.length - invoiceIndex -1] = resultFinance;
+                            sessionStorage.setItem("selectFinance", JSON.stringify(finance));
+                            self.location = document.referrer
+                        },function (errCode) {
+                            close();
+                            serIds = [];
+                            alert(errCode);
+                        })
+                    }
+                } else {
+                    uploadIndex = uploadIndex + 1;
+                    uploadPhothWithIndex(uploadIndex);
+                }
+            },
+            fail: function (res) {
+                alert("配置完成,请再次点击完成");
+                close();
+            }
+        })
+    }
+
+    function deletePhoto(sender) {
+        var finance = JSON.parse(sessionStorage.getItem("selectInvoice"));
+        var liIndex = $(sender).parents("li").index();
+        var photoIndex = liIndex - 5;
+        if (addPhotoIds.length != 0) {
+            if (photoIndex <= addPhotoIds.length - 1) {
+                addPhotoIds.splice(addPhotoIds.length -1- photoIndex,1);
+            } else {
+                finance.attachFiles.splice(finance.attachFiles.length - 1 - (photoIndex - addPhotoIds.length + 1) ,1);
+                sessionStorage.setItem("selectInvoice", JSON.stringify(finance));
+            }
+        } else {
+            finance.attachFiles.splice(finance.attachFiles.length - 1 - photoIndex,1);
+            sessionStorage.setItem("selectInvoice", JSON.stringify(finance));
+        }
+        document.getElementsByTagName('ul')[0].removeChild(document.getElementsByTagName('ul')[0].getElementsByTagName('li')[liIndex]);
+    }
+    function open() {
+        $("#loadingGif").css('display','block');
+    }
+
+    function close() {
+        $("#loadingGif").css('display','none');
+    }
+</script>

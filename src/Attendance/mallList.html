@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商场列表</title>
+    <!--<meta charset="GBK" />-->
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+    <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+    <script src="../Common/JS/utils.js"></script>
+    <script src="../Common/JS/encryptionutils.js"></script>
+    <script src="../Common/JS/networkaffairs.js"></script>
+    <link rel="stylesheet" href="../financeHtml/css/index.css">
+
+    <script>
+        var mallli = new Array();
+    function mallList(cityId) {
+        N.getAction("listCityMallsOfProgram.action",{
+            cityId:cityId,
+            appToken : "D148BC88F9BB32FCE17530205939A22A",
+            endUserSn : H.uuid,
+            noConfig : true
+        },function(mallList) {
+            var malllist = mallList['0'].malls;
+            mallli = malllist;
+            for (var mallNum in malllist){
+                var mall = malllist[mallNum];
+                var list = $("<li><a class='go_other' onclick='gotoDetail(\""+mall.id+"\",\""+mall.name+"\")'>" + mall.name + "</a></li>");
+                $("#mallList").append(list).find("li:last").hide();
+//                $('ul').listview('refresh');
+                $("#mallList").find("li:last").slideDown(300);
+            }
+        },function (xhr) {
+            alert("failure");
+        });
+    }
+    function gotoDetail(mallID,mallName) {
+//        var source = sessionStorage.getItem("source");
+//        if(source == 1) {
+//            self.location.href = "../financeHtml/html/fianceList.html"
+//        } else {
+                    self.location.href = "progressInfo.html";
+//        }
+        sessionStorage.setItem("mallID",mallID);
+        sessionStorage.setItem("mallName",mallName);
+    }
+        function test() {
+            var value = sessionStorage.getItem("cityID");
+            mallList(value);
+        }
+    function textChange() {
+        $('ul li').remove();
+        var sInput = document.getElementById("inp");
+        for(cIndex in mallli){
+            var mall = mallli[cIndex];
+            if (sInput.value == "") {
+                    var list = $("<li><a class='go_other' onclick='gotoDetail(\""+mall.id+"\",\""+mall.name+"\")'>" + mall.name + "</a></li>");
+                    $("#mallList").append(list).find("li:last").hide();
+//                    $('ul').listview('refresh');
+                    $("#mallList").find("li:last").slideDown(0);
+            } else {
+                var mallName = mall.name;
+                var searchText = sInput.value;
+                if(mallName.indexOf(searchText) != -1){
+                    var list = $("<li><a class='go_other' onclick='gotoDetail(\""+mall.id+"\",\""+mall.name+"\")'>" + mall.name + "</a></li>");
+                    $("#mallList").append(list).find("li:last").hide();
+//                    $('ul').listview('refresh');
+                    $("#mallList").find("li:last").slideDown(0);
+                }
+            }
+
+        }
+    }
+
+    </script>
+</head>
+<body onload="test()">
+<div data-role="page">
+    <!--<div data-role="header">-->
+        <!--<h1>商场列表</h1>-->
+    <!--</div>-->
+    <!-- /header -->
+    <div data-role="content">
+        <div class="searchInfo">
+            <input type="text" id="inp" oninput="(textChange())">
+        </div>
+        <ul data-role="listview" id="mallList" data-inset="true">
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

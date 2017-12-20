@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>城市列表</title>
+    <!--<meta charset="GBK" />-->
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />
+    <link rel="stylesheet" href="css/Attendance.css">
+    <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+    <script src="../Common/JS/utils.js"></script>
+    <script src="../Common/JS/encryptionutils.js"></script>
+    <script src="../Common/JS/networkaffairs.js"></script>
+    <script>
+        var cityli= new Array();
+        function loadCityList() {
+            N.getAction("listCityByProgram.action",{
+                appToken : "D148BC88F9BB32FCE17530205939A22A",
+            },function(citylist) {
+                for (var cityNum in citylist){
+                    cityli = citylist;
+                    var city = citylist[cityNum];
+                    var valueId = city.id;
+                    var list = $("<li class='city_li'><a class='go_mall' onclick='test(\""+valueId+"\",\""+city.name+"\")'>"+city.name+"</a></li>");
+
+//                    var list = $("<li><a href='http://localhost:63342/demo/entry/mallList.html' onclick='test()'>" + city.name + "</a></li>");
+                    $("#cityList").append(list).find("li:last").hide();
+//                    $('ul').listview('refresh');
+                    $("#cityList").find("li:last").slideDown(0);
+                }
+            },function (xhr) {
+                alert("请求数据失败");
+            });
+
+        return;
+//            var xhr = new XMLHttpRequest();
+//            xhr.open("post", "http://dev.indoorstar.com:6630/ids/listCityByProgram.action?appToken=D148BC88F9BB32FCE17530205939A22A", true);
+//            xhr.onload = function () {
+//                console.log(this.responseText);
+//                var data = JSON.parse(this.responseText);
+//                var citylist = data["d"];
+//                var unzip = E.unzipStr(citylist,false);
+//// var string = H.toString(citylist);
+////                H.
+//                for(var i in data){
+//                    sessionStorage.setItem(i,data[i]);
+//                }
+//            };
+//            xhr.onerror = function () {
+//                alert('error making the request.');
+//            };
+//
+//            xhr.send();
+        }
+
+        function test(cityId,cityName) {
+            self.location.href = "mallList.html";
+            sessionStorage.setItem("cityID",cityId);
+            sessionStorage.setItem("cityName",cityName);
+//            var i = 0;
+//            for (i = 0; i <= 3; i++) {
+//                var list = $("<li><a href='http://localhost:63342/demo/entry/mallList.html'>新增列表项" + i + "</a></li>");
+//                $("#list").append(list).find("li:last").hide();
+//                $('ul').listview('refresh');
+//                $("#list").find("li:last").slideDown(300);
+//            }
+
+        }
+        function textChange() {
+            $('ul li').remove();
+            var sInput = document.getElementById("inp");
+            for(cIndex in cityli){
+                var city = cityli[cIndex];
+                if (sInput.value == "") {
+                        var valueId = city.id;
+                        var list = $("<li><a class='go_mall' onclick='test(\""+valueId+"\",\""+city.name+"\")'>"+city.name+"</a></li>");
+                        $("#cityList").append(list).find("li:last").hide();
+//                        $('ul').listview('refresh');
+                        $("#cityList").find("li:last").slideDown(0);
+                } else {
+                    var cityName = city.name;
+                    var searchText = sInput.value;
+                    if(cityName.indexOf(searchText) != -1){
+                        var valueId = city.id;
+                        var list = $("<li><a class='go_mall' onclick='test(\""+valueId+"\",\""+city.name+"\")'>"+city.name+"</a></li>");
+                        $("#cityList").append(list).find("li:last").hide();
+//                        $('ul').listview('refresh');
+                        $("#cityList").find("li:last").slideDown(0);
+                    }
+                }
+
+            }
+        }
+    </script>
+</head>
+
+<body onload="loadCityList()">
+
+<div data-role="page">
+<!--<div data-role="header">-->
+    <!--<h1>城市列表</h1>-->
+<!--</div>-->
+<!-- /header -->
+<div data-role="content">
+    <div class="searchInfo">
+        <input type="text" id="inp" oninput="(textChange())">
+    </div>
+
+    <ul data-role="listview" id="cityList" data-inset="true">
+
+    </ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+(function(root){"undefined"!=typeof module&&module.exports&&GLOBAL,{}.getInstance=function(obj){this.instance}}).call(this);
