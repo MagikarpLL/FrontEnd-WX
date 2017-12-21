@@ -11,12 +11,136 @@
     <link rel="stylesheet" href="css/indexReport.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes" />
 </head>
-<body>
-    <div class="button-sp-area">
-        <a href="javascript:;" class="weui-btn weui-btn_plain-default">编写周报</a>
+<body onload="load()">
+    <div id="writeReport_div" class="button-sp-area">
+        <a class="weui-btn weui-btn_plain-default" onclick="writeReport()">编写周报</a>
     </div>
-    <div class="button-sp-area">
-        <a href="javascript:;" class="weui-btn weui-btn_plain-default">查看周报</a>
-    </div>
+
+<script>
+    function load() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+
+        if (operatorID == undefined) {
+            serilizeURL(window.location.href);
+        }
+        //根据权限来显示查看周报模块
+        if(sessionStorage.getItem("attendanceQuery") == 1){
+            var div = $("    <div class=\"button-sp-area\">\n" +
+                "        <a class=\"weui-btn weui-btn_plain-default\" onclick=\"checkReport()\">查看周报</a>\n" +
+                "    </div>")
+            $("#writeReport_div").after(div);
+        }
+
+    }
+
+    function serilizeURL(url){
+            // var div = $("    <div class=\"button-sp-area\">\n" +
+            //     "        <a href=\"javascript:;\" class=\"weui-btn weui-btn_plain-default\">查看周报</a>\n" +
+            //     "    </div>")
+            // $("#writeReport_div").after(div);
+        sessionStorage.setItem("operatorKey", "47007529-0413-4C5E-9268-35D6F9211991");
+        sessionStorage.setItem("operatorName", "余凡");
+        sessionStorage.setItem("operatorID", "341");
+        sessionStorage.setItem("attendanceQuery",1);
+
+        //获取用户的name和id等相关信息
+//         var rs=url.split("?")[1];
+//         if(rs==undefined){
+//             alert("请从手机微信公众号进入！");
+// //            return;
+//         }
+//         var arr=rs.split("&");
+//         var json={};
+//         for(var i=0;i<arr.length;i++){
+//             if(arr[i].indexOf("=")!=-1){
+//                 json[arr[i].split("=")[0]]=arr[i].split("=")[1];
+//             }
+//             else{
+//                 json[arr[i]]="undefined";
+//             }
+//         }
+//         var code = json["code"];
+//         N.getWXAction("corp/login",{
+//             appId:3,
+//             code:code
+//         },function (operator) {
+//             if (operator.errcode > 0) {
+//                 alert("非有效用户");
+//             } else {
+//                 sessionStorage.setItem("operator",JSON.stringify(operator));
+//                 sessionStorage.setItem("operatorKey", operator.operatorKeyCode);
+//                 sessionStorage.setItem("operatorName", operator.operatorName);
+//                 sessionStorage.setItem("operatorID", operator.operatorId);
+//                 if(sessionStorage.getItem("attendanceQuery") != 1) {
+//                     for (var typeIndex in operator.operatorAuthTypes) {
+//                         var type = operator.operatorAuthTypes[typeIndex];
+//                         if (type == 10520 || type == 1040 || type == 100 || type == 10) {
+//                             var div = $("<div class='out_button bottom_btn'> <a class='linkButton' href='javascript:viod(0)' onclick='gotoAttendanceQuery()'>考勤汇总</a> </div>")
+//                             $(".out_button").after(div);
+//                             sessionStorage.setItem("attendanceQuery",1);
+//                             break;
+//                         }
+//                     }
+//                 }
+//             }
+//         },function (msg) {
+//             var d = JSON.parse(msg)
+//             alert(d.m);
+//         })
+
+    }
+
+    function writeReport() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+        if(operatorID== undefined){
+            alert("用户信息未加载完成,请稍后点击!");
+            return;
+        }
+        self.location.href = "./html/writeReport.html";
+    }
+
+    function checkReport() {
+        var operatorID=  sessionStorage.getItem("operatorID");
+        if(operatorID== undefined){
+            alert("用户信息未加载完成,请稍后点击!");
+            return;
+        }
+        N.getAction("operatorsList.action",{
+            operatorKey:sessionStorage.getItem("operatorKey")
+        },function (operatorList) {
+            sessionStorage.setItem("operatorList",JSON.stringify(operatorList));
+            N.getAction("listCity.action",{
+                operatorKey:sessionStorage.getItem("operatorKey")
+            },function (cityList) {
+                var temp = [];
+                for(var opIndex in operatorList) {
+                    var op = operatorList[opIndex];
+                    if (temp.indexOf(op.cityId) == -1) {
+                        temp.push(op.cityId);
+                    }
+                }
+                var cityToId = new Array();
+                for (var cityIndex in cityList) {
+                    var city = cityList[cityIndex];
+                    for (var idIndex in temp) {
+                        if (temp[idIndex] == city.id){
+                            cityToId.push(city);
+                        }
+                    }
+                }
+                sessionStorage.setItem("cityToId",JSON.stringify(cityToId));
+                sessionStorage.setItem("operatorList",JSON.stringify(operatorList));
+                self.location.href = "./html/checkReport.html";
+            },function (errcode) {
+                alert(errcode);
+            })
+        },function (errcode) {
+            alert(errcode);
+        })
+    }
+</script>
+
+
+
 </body>
 </html>
