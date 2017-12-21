@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>周报详情</title>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../Common/JS/utils.js"></script>
+    <script src="../../Common/JS/encryptionutils.js"></script>
+    <script src="../../Common/JS/networkaffairs.js"></script>
+    <link rel="stylesheet" href="../lib/weui.min.css">
+    <link rel="stylesheet" href="../css/checkReport.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes"/>
+</head>
+<body>
+
+<div class="container" id="container">
+    <div class="page input js-show">
+        <div class="page_hd">
+            <span class="page_title">
+                周报情况
+            </span>
+        </div>
+
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">起始日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">结束日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <table border="0" width="100%">
+                    <tr>
+                        <th align="left"><i class="weui-icon-search"></i>姓名</th>
+                        <th align="center">提交情况</th>
+                        <th align="right">下载</th>
+                    </tr>
+                    <tr>
+                        <td align="left">MagikarpLL</td>
+                        <td align="center">已提交</td>
+                        <td align="right"><a>下载</a></td>
+                    </tr>
+                    <tr>
+                        <td align="left">Leizhen</td>
+                        <td align="center">已提交</td>
+                        <td align="right"><a>下载</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="button-sp-area">
+            <a href="javascript:;" class="weui-btn weui-btn_plain-primary">全部下载</a>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+</html>

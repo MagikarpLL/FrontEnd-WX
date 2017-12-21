@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编写周报</title>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../../Common/JS/utils.js"></script>
+    <script src="../../Common/JS/encryptionutils.js"></script>
+    <script src="../../Common/JS/networkaffairs.js"></script>
+    <link rel="stylesheet" href="../lib/weui.min.css">
+    <link rel="stylesheet" href="../css/writeReport.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes"/>
+</head>
+<body>
+<div class="container" id="container">
+    <div class="page input js-show">
+        <div class="page_hd">
+            <h1 class="page_title">
+                编写周报
+            </h1>
+        </div>
+
+        <div class="page_hd_medium">
+            <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
+            <span class="weui-dialog__title" style="color: #09BB07;">基本信息</span>
+        </div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">报告人</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="请输入姓名">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">所在部门</label>
+                </div>
+                <div class="weui-cell_select">
+                    <select name="department_select" class="weui-select">
+                        <option value="1">研发部门</option>
+                        <option value="2">人事部门</option>
+                        <option value="3">后勤部门</option>
+                    </select>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">编制日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">起始日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">终止日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+        </div>
+
+        <div class="page_hd_medium" style="padding: 20px 0px;">
+            <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
+            <span class="weui-dialog__title" style="color: #09BB07;">本周工作进度</span>
+        </div>
+        <div class="weui-cells weui-cells_form" style="margin-top: 20px">
+            <!--<div class="weui-cells__tips">计划工作内容</div>-->
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="请输入本周计划工作内容">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">完成状态</label></div>
+                <div class="weui-cells_radio">
+                    <input type="radio" name="complete" value="1" checked="checked">已完成
+                    <input type="radio" name="complete" value="0">未完成
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">起始日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">结束日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入本周工作详细内容" rows="4"></textarea>
+                    <div class="weui-textarea-counter"><span>0</span>/200</div>
+                </div>
+            </div>
+        </div>
+        <a href="javascript:void(0);" class="weui-cell weui-cell_link">
+            <div class="weui-cell__bd">添加更多</div>
+        </a>
+
+        <div class="page_hd_medium">
+            <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
+            <span class="weui-dialog__title" style="color: #09BB07;">下周工作规划</span>
+        </div>
+        <div class="weui-cells weui-cells_form" style="margin-top: 40px">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入下周计划工作内容" rows="4"></textarea>
+                    <div class="weui-textarea-counter"><span>0</span>/200</div>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">完成日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">达到标准</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="">
+                </div>
+            </div>
+        </div>
+        <a href="javascript:void(0);" class="weui-cell weui-cell_link">
+            <div class="weui-cell__bd">添加更多</div>
+        </a>
+
+        <div class="page_hd_medium">
+            <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
+            <span class="weui-dialog__title" style="color: #09BB07;">需要资源支持</span>
+        </div>
+        <div class="weui-cells weui-cells_form" style="margin-top: 40px">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="所需资源" rows="4"></textarea>
+                    <div class="weui-textarea-counter"><span>0</span>/200</div>
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">起始日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">终止日期</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="date" value="">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">达到标准</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="">
+                </div>
+            </div>
+        </div>
+        <a href="javascript:void(0);" class="weui-cell weui-cell_link">
+            <div class="weui-cell__bd">添加更多</div>
+        </a>
+
+        <div class="page_hd_medium">
+            <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
+            <span class="weui-dialog__title" style="color: #09BB07;">备注</span>
+        </div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="填写备注" rows="4"></textarea>
+                    <div class="weui-textarea-counter"><span>0</span>/200</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-sp-area">
+            <a href="javascript:;" class="weui-btn weui-btn_plain-primary">提交</a>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+</html>
