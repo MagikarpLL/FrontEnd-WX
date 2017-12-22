@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>编写周报</title>
-    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../lib/jquery-3.2.1.min.js"></script>
     <script src="../../Common/JS/utils.js"></script>
     <script src="../../Common/JS/encryptionutils.js"></script>
     <script src="../../Common/JS/networkaffairs.js"></script>
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../css/writeReport.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes"/>
 </head>
-<body>
+<body onload="getDefaultInfo()">
 <div class="container" id="container">
     <div class="page input js-show">
         <div class="page_hd">
@@ -76,7 +76,6 @@
             <span class="weui-dialog__title" style="color: #09BB07;">本周工作进度</span>
         </div>
         <div id="this_week_div" class="weui-cells weui-cells_form" style="margin-top: 20px">
-            <!--<div class="weui-cells__tips">计划工作内容</div>-->
             <div class="weui-cell">
                 <div class="weui-cell__bd">
                     <input id="this_week_work" class="weui-input" type="text" placeholder="请输入本周计划工作内容">
@@ -107,24 +106,25 @@
             </div>
             <div class="weui-cell">
                 <div class="weui-cell__bd">
-                    <textarea id="this_week_detailsWork" class="weui-textarea" placeholder="请输入本周工作详细内容" rows="4"></textarea>
+                    <textarea id="this_week_detailsWork" class="weui-textarea" placeholder="请输入本周工作详细内容"
+                              rows="4"></textarea>
                     <div class="weui-textarea-counter"><span>0</span>/200</div>
                 </div>
             </div>
         </div>
         <a href="javascript:void(0);" class="weui-cell weui-cell_link">
-            <div class="weui-cell__bd">添加更多</div>
-            <div class="weui-cell__bd" align="right">删除</div>
+            <div class="weui-cell__bd" onclick="addDiv('this_week')">添加更多</div>
+            <div class="weui-cell__bd" align="right" onclick="removeDiv('this_week')">删除</div>
         </a>
 
         <div class="page_hd_medium">
             <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
             <span class="weui-dialog__title" style="color: #09BB07;">下周工作规划</span>
         </div>
-        <div class="weui-cells weui-cells_form" style="margin-top: 40px">
+        <div id="next_week_div" class="weui-cells weui-cells_form" style="margin-top: 40px">
             <div class="weui-cell">
                 <div class="weui-cell__bd">
-                    <textarea class="weui-textarea" placeholder="请输入下周计划工作内容" rows="4"></textarea>
+                    <textarea id="next_week_work" class="weui-textarea" placeholder="请输入下周计划工作内容" rows="4"></textarea>
                     <div class="weui-textarea-counter"><span>0</span>/200</div>
                 </div>
             </div>
@@ -133,29 +133,29 @@
                     <label class="weui-label">完成日期</label>
                 </div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="date" value="">
+                    <input id="next_time_end" class="weui-input" type="date" value="">
                 </div>
             </div>
             <div class="weui-cell">
                 <div class="weui-cell__hd"><label class="weui-label">达到标准</label></div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="text" placeholder="">
+                    <input id="next_ruler" class="weui-input" type="text" placeholder="">
                 </div>
             </div>
         </div>
         <a href="javascript:void(0);" class="weui-cell weui-cell_link">
-            <div class="weui-cell__bd">添加更多</div>
-            <div class="weui-cell__bd" align="right">删除</div>
+            <div class="weui-cell__bd" onclick="addDiv('next_week')">添加更多</div>
+            <div class="weui-cell__bd" align="right" onclick="removeDiv('next_week')">删除</div>
         </a>
 
         <div class="page_hd_medium">
             <i class="weui-icon-info-circle" style="margin-bottom: 5px"></i>
             <span class="weui-dialog__title" style="color: #09BB07;">需要资源支持</span>
         </div>
-        <div class="weui-cells weui-cells_form" style="margin-top: 40px">
+        <div id="resource_div" class="weui-cells weui-cells_form" style="margin-top: 40px">
             <div class="weui-cell">
                 <div class="weui-cell__bd">
-                    <textarea class="weui-textarea" placeholder="所需资源" rows="4"></textarea>
+                    <textarea id="resource_text" class="weui-textarea" placeholder="所需资源" rows="4"></textarea>
                     <div class="weui-textarea-counter"><span>0</span>/200</div>
                 </div>
             </div>
@@ -164,7 +164,7 @@
                     <label class="weui-label">起始日期</label>
                 </div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="date" value="">
+                    <input id="resource_time_start" class="weui-input" type="date" value="">
                 </div>
             </div>
             <div class="weui-cell">
@@ -172,19 +172,19 @@
                     <label class="weui-label">终止日期</label>
                 </div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="date" value="">
+                    <input id="resource_time_end" class="weui-input" type="date" value="">
                 </div>
             </div>
             <div class="weui-cell">
                 <div class="weui-cell__hd"><label class="weui-label">达到标准</label></div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="text" placeholder="">
+                    <input id="resource_ruler" class="weui-input" type="text" placeholder="">
                 </div>
             </div>
         </div>
         <a href="javascript:void(0);" class="weui-cell weui-cell_link">
-            <div class="weui-cell__bd">添加更多</div>
-            <div class="weui-cell__bd" align="right">删除</div>
+            <div class="weui-cell__bd" onclick="addDiv('need_resource')">添加更多</div>
+            <div class="weui-cell__bd" align="right" onclick="removeDiv('need_resource')">删除</div>
         </a>
 
         <div class="page_hd_medium">
@@ -201,7 +201,7 @@
         </div>
 
         <div class="button-sp-area">
-            <a href="javascript:;" class="weui-btn weui-btn_plain-primary">提交</a>
+            <a href="javascript:;" class="weui-btn weui-btn_plain-primary" onclick="enter()">提交</a>
         </div>
 
     </div>
@@ -212,197 +212,171 @@
     var next_week_index = 0;
     var need_resource_index = 0;
 
-    function addDiv(option){
-        switch(option){
+    function addDiv(option) {
+        switch (option) {
             case "this_week":
-
-
-
-
+                this_week_index++;
+                var this_week_clone_obj = $("#this_week_div").clone(true);
+                var this_week_clone = this_week_clone_obj[0];
+                this_week_clone.id = this_week_clone.id + '_' + this_week_index;
+                var input_0 = this_week_clone.children[0].children[0].children[0];
+                input_0.id = input_0.id + "_" + this_week_index;
+                input_0.value = "";
+                var input_1_0 = this_week_clone.children[1].children[1].children[0];
+                var input_1_1 = this_week_clone.children[1].children[1].children[1];
+                input_1_0.name = input_1_0.name + "_" + this_week_index;
+                input_1_1.name = input_1_1.name + "_" + this_week_index;
+                var input_2 = this_week_clone.children[2].children[1].children[0];
+                input_2.id = input_2.id + "_" + this_week_index;
+                input_2.value = "";
+                var input_3 = this_week_clone.children[3].children[1].children[0];
+                input_3.id = input_3.id + "_" + this_week_index;
+                input_3.value = "";
+                var input_4 = this_week_clone.children[4].children[0].children[0];
+                input_4.id = input_4.id + "_" + this_week_index;
+                input_4.value = "";
+                $("#this_week_div").after(this_week_clone);
                 break;
             case "next_week":
+                next_week_index++;
+                var next_week_clone_obj = $("#next_week_div").clone(true);
+                var next_week_clone = next_week_clone_obj[0];
+                next_week_clone.id = next_week_clone.id + '_' + next_week_index;
+                var input_0_next = next_week_clone.children[0].children[0].children[0];
+                input_0_next.id = input_0_next.id + "_" + next_week_index;
+                input_0_next.value = "";
+                var input_1_next = next_week_clone.children[1].children[1].children[0];
+                input_1_next.id = input_1_next.id + "_" + next_week_index;
+                input_1_next.value = "";
+                var input_2_next = next_week_clone.children[2].children[1].children[0];
+                input_2_next.id = input_2_next.id + "_" + next_week_index;
+                input_2_next.value = "";
+                $("#next_week_div").after(next_week_clone);
                 break;
             case "need_resource":
+                need_resource_index++;
+                var resource_clone_obj = $("#resource_div").clone(true);
+                var resource_clone = resource_clone_obj[0];
+                resource_clone.id = resource_clone.id + '_' + need_resource_index;
+                var input_0_resour = resource_clone.children[0].children[0].children[0];
+                input_0_resour.id = input_0_resour.id + "_" + need_resource_index;
+                input_0_resour.value = "";
+                var input_1_resour = resource_clone.children[1].children[1].children[0];
+                input_1_resour.id = input_1_resour.id + "_" + need_resource_index;
+                input_1_resour.value = "";
+                var input_2_resour = resource_clone.children[2].children[1].children[0];
+                input_2_resour.id = input_2_resour.id + "_" + need_resource_index;
+                input_2_resour.value = "";
+                var input_3_resour = resource_clone.children[3].children[1].children[0];
+                input_3_resour.id = input_3_resour.id + "_" + need_resource_index;
+                input_3_resour.value = "";
+                $("#resource_div").after(resource_clone);
                 break;
             default:
         }
     }
 
     function removeDiv(option) {
-        switch(option){
+        switch (option) {
             case "this_week":
+                if (this_week_index > 0) {
+                    var temp_this = "this_week_div" + "_" + this_week_index;
+                    this_week_index--;
+                    $('#' + temp_this).remove();
+                }
                 break;
             case "next_week":
+                if (next_week_index > 0) {
+                    var temp_next = "next_week_div" + "_" + next_week_index;
+                    next_week_index--;
+                    $('#' + temp_next).remove();
+                }
                 break;
             case "need_resource":
+                if (need_resource_index > 0) {
+                    var temp_resour = "resource_div" + "_" + need_resource_index;
+                    need_resource_index--;
+                    $('#' + temp_resour).remove();
+                }
                 break;
             default:
         }
     }
 
-
-
-
-
-
-    var loading;
     function getDefaultInfo() {
-        loading=document.getElementById("showLoading");
-        loading.hidden = true;
-
         var name = sessionStorage.getItem("operatorName");
-        document.getElementById("name").innerHTML = name;
+        $('#employ_name').val(name)
 
         var date = new Date();
         var Y = date.getFullYear() + '-';
-        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-        var D = date.getDate() + ' ';
-        var h = date.getHours() + ':';
-        var m = date.getMinutes() + ':';
-        var s = date.getSeconds();
-//        var ss = date.getMilliseconds();
-        document.getElementById('nowDateTimeSpan').innerHTML = Y+M+D+h+m+s;
-        getLocation()
+        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        var D = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+        $('#report_writeTime').val(Y + M + D);
+
+        var weekday = date.getDay();
+        var startDay = D - weekday + 1;
+        var endDay = D + (6 - weekday) + 1;
+
+        $('#report_startTime').val(Y + M + startDay);
+        $('#report_endTime').val(Y + M + endDay);
     }
+
     function enter() {
-        var note = document.getElementById("note").value;
-        if(note==""){
-            alert("请填写备注后签到！");
-            return;
-        }
-        var isLunch = document.getElementById("isLunch").checked
-        var isDinner = document.getElementById("isDinner").checked
-        var isLeave =  document.getElementById("isLeave").checked;
-        var leave = 0;
-        var leaveTime = 0;
 
-        if(isLeave){
+        var name = $('#employ_name').val();
+        var department = $('#department_select').val();
+        var reportWriteTime = $('#report_writeTime').val();
+        var reportStartTime = $('#report_startTime').val();
+        var reportEndTime = $('#report_endTime').val();
 
-            var hoildays = document.getElementsByName("holiday");
-            var leaveTime = document.getElementsByName("halfDay");
-            console.log(hoildays);
-            console.log(leaveTime);
-            for (var i=0;i<hoildays.length;i++){
-                if(hoildays[i].checked){
-                    leave = hoildays[i].value;
+        var thisWeek = [];
+        var nextWeek = [];
+        var needResource = [];
 
-                    break;
-                }
-            }
-            for (var i=0;i<leaveTime.length;i++){
-                if(leaveTime[i].checked){
-                    leaveTime = leaveTime[i].value;
-
-                    break;
-                }
-
-            }
-        }
-        var  operatorKey =  sessionStorage.getItem("operatorKey");
-        var operatorId = sessionStorage.getItem("operatorID");
-        var time = new Date().getTime();
-        var logString = {
-            "operatorId":operatorId,
-            "workType":1,
-            "time":time,
-            "note":note,
-            "orderLunch":isLunch,
-            "orderDinner":isDinner,
-            "leave":leave,
-            "leaveHour":leaveTime,
-            "lat":latitude,
-            "lng":longitude
-        }
-        var str = JSON.stringify(logString);
-        var log = encodeURI(str);
-
-        N.getAction("addOperatorAttendanceLog.action",{
-            operatorKey:operatorKey,
-            operatorAttendanceLog:log
-        },function (msg) {
-            alert("签到成功！");
-        },function (msg) {
-            var d = JSON.parse(msg)
-            alert(d.m);
-        })
-//        console.log(isLunch,isDinner);
-    }
-    function getLocation() {
-        var timesTamp = new Date().getTime();
-
-        var len = len || 16;
-        var $chars = 'ABCDEFGHIJKMNOPQRSTUVWXYZabcdefghijkmnlopqrstuvwxyz1234567890';
-        var maxPos = $chars.length;
-        var pwd = '';
-        for (i = 0; i < len; i++) {
-            pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
-        }
-
-        N.getWXAction("get_jsapi_ticket",{
-            appId:3
-        },function (msg) {
-            if (msg.ticket == undefined) {
-                return;
-            }
-            var ticket = msg.ticket;
-            var sign = getSign(pwd,ticket,timesTamp)
-            wx.config({
-                debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-                appId: 'ww3e573389ab637ec1', // 必填，企业微信的cropID
-                timestamp:timesTamp , // 必填，生成签名的时间戳
-                nonceStr: pwd, // 必填，生成签名的随机串
-                signature: sign,// 必填，签名，见附录1
-                jsApiList: ["getLocation"] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        for(var i = this_week_index; i >= 0; i--){
+            var nameKey = 'complete' + (this_week_index===0?'':('_'+this_week_index));
+            thisWeek.push({
+                thisWeekWork: $('#this_week_work' + (this_week_index===0?'':('_'+this_week_index))).val(),
+                thisWeekComplete:$('input[name= nameKey][checked]').val(),    //1已完成，0未完成
+                thisWeekStart:$('#this_week_startTime' + (this_week_index===0?'':('_'+this_week_index))).val(),
+                thisWeekEnd:$('#this_week_endTime' + (this_week_index===0?'':('_'+this_week_index))).val(),
+                thisWeekDetails:$('#this_week_detailsWork' + (this_week_index===0?'':('_'+this_week_index))).val()
             });
-            wx.ready(function(){
-                wx.getLocation({
-                    type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
-                    success: function (res) {
-                        latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
-                        longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
-                        var speed = res.speed; //速度，以米/每秒计
-                        var accuracy = res.accuracy; // 位置精度
-                        $.ajax({
-                            url:"http://apis.map.qq.com/ws/geocoder/v1/?location=" +latitude+ "," +longitude+
-                            "&coord_type=5&key=WAMBZ-U523F-3LFJ2-J576N-5IDUE-L2BPU&output=jsonp&callback=calllocation",
-                            type:"GET",
-                            dataType:'jsonp',
-                            jsonp:'calllocation'
-                        });
-                    },
-                    fail:function (res) {
-//                        alert(res);
-                    }
-                });
-            });
-            wx.error(function(res) {
-//                alert(res);
-            });
-        },function (err) {
-            var d = JSON.parse(err)
-            alert(d.m);
-        });
+        }
 
+        console.log(thisWeek);
+
+        for(var j = next_week_index; j >= 0; j--){
+
+        }
+
+        for(var k = need_resource_index; k >= 0; k--){
+
+        }
+
+
+        // var operatorKey = sessionStorage.getItem("operatorKey");
+        // var operatorId = sessionStorage.getItem("operatorID");
+        // var time = new Date().getTime();
+        // var logString = {
+        //     "operatorId": operatorId,
+        //     "workType": 1,
+        //
+        //
+        // }
+        // var str = JSON.stringify(logString);
+        // var log = encodeURI(str);
+        //
+        // N.getAction("addOperatorAttendanceLog.action", {
+        //     operatorKey: operatorKey,
+        //     operatorAttendanceLog: log
+        // }, function (msg) {
+        //     alert("签到成功！");
+        // }, function (msg) {
+        //     var d = JSON.parse(msg)
+        //     alert(d.m);
+        // });
     }
-    function getSign(noncestr,jsapi_ticket,time) {
-        var url = $(location).attr('href');
-        var string = "jsapi_ticket="+jsapi_ticket+"&noncestr="+noncestr+"&timestamp="+time+"&url="+window.location.href;
-        return E.SHA1(string);
-
-    }
-    function refresh() {
-        loading.hidden = false;
-        getLocation();
-    }
-    function calllocation(data) {
-        var name = data.result.formatted_addresses.rough;
-        var address = data.result.formatted_addresses.recommend;
-        document.getElementById('address1').innerHTML = address;
-        loading.hidden = true;
-    }
-
-
-
 </script>
 </body>
 </html>
