@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>周报详情</title>
-    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../lib/jquery-3.2.1.min.js"></script>
     <script src="../../Common/JS/utils.js"></script>
     <script src="../../Common/JS/encryptionutils.js"></script>
     <script src="../../Common/JS/networkaffairs.js"></script>
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../css/checkReport.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=yes"/>
 </head>
-<body>
+<body onload="onload()">
 
 <div class="container" id="container">
     <div class="page input js-show">
@@ -27,7 +27,7 @@
                     <label class="weui-label">起始日期</label>
                 </div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="date" value="">
+                    <input id="start_time" class="weui-input" type="date" value="">
                 </div>
             </div>
             <div class="weui-cell">
@@ -35,7 +35,7 @@
                     <label class="weui-label">结束日期</label>
                 </div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="date" value="">
+                    <input id="end_time" class="weui-input" type="date" value="">
                 </div>
             </div>
             <div class="weui-cell">
@@ -43,26 +43,24 @@
                     <label class="weui-label">选择城市</label>
                 </div>
                 <div class="weui-cell_select">
-                    <select name="department_select" class="weui-select">
-                        <option value="1">上海</option>
-                        <option value="2">杭州</option>
-                        <option value="3">其他</option>
+                    <select id="select_city" class="weui-select">
+                        <option value="-1" selected="selected">全部</option>
                     </select>
                 </div>
             </div>
             <div class="weui-cell">
                 <table border="0" width="100%">
-                    <tr>
-                        <th align="left"><i class="weui-icon-search"></i>姓名</th>
+                    <tr id="table_heading">
+                        <th align="left"><i class="weui-icon-search" onclick="search()"></i>姓名</th>
                         <th align="center">提交情况</th>
                         <th align="right">下载</th>
                     </tr>
-                    <tr>
+                    <tr class="emptyClass">
                         <td align="left">MagikarpLL</td>
                         <td align="center">已提交</td>
                         <td align="right"><a>下载</a></td>
                     </tr>
-                    <tr>
+                    <tr class="emptyClass">
                         <td align="left">Leizhen</td>
                         <td align="center">已提交</td>
                         <td align="right"><a>下载</a></td>
@@ -72,12 +70,80 @@
         </div>
 
         <div class="button-sp-area">
-            <a href="javascript:;" class="weui-btn weui-btn_plain-primary">全部下载</a>
+            <a href="javascript:;" class="weui-btn weui-btn_plain-primary" onclick="download()">全部下载</a>
         </div>
 
     </div>
 </div>
+<script>
+
+    var cityToId = JSON.parse(sessionStorage.getItem("cityToId"));
+    var operatorList = JSON.parse(sessionStorage.getItem("operatorList"));
+
+    function onload() {
+
+        var date = new Date();
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        var D = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+
+        var weekday = date.getDay();
+        var startDay = D - weekday + 1;
+        var endDay = D + (6 - weekday) + 1;
+
+        $('#start_time').val(Y + M + startDay);
+        $('#end_time').val(Y + M + endDay);
 
 
+        for(var cityIndex in cityToId){
+            var city = cityToId[cityIndex];
+            var select = $("<option value='"+city.id+"'>"+city.name+"</option>")
+            $("#select_city").append(select);
+        }
+    }
+    
+    function search() {
+        var startTime = $('#start_time').val();
+        var endTime = $('#end_time').val();
+        var cityId = $('#select_city option:selected').val();
+
+        N.getAction("......",{
+            workTypes:1+"@workTypes="+2,
+            operatorKey:sessionStorage.getItem("operatorKey"),
+            startTime:startTime,
+            endTime:endTime,
+            cityId:cityId
+        },function (res) {
+
+            $("tr.emptyClass").remove();
+
+            if (res == "" || res == undefined) {
+                alert("暂无数据!")
+                return;
+            }
+
+            for(var key in res){
+                var name = res[key].name;
+                var doneOrNot = (res[key].doneOrNot === 1)?"已提交":"未提交";
+                var personnalHref = res[key].downloadHred;
+
+                var line = $("<tr class=\"emptyClass\">\n" +
+                    "                        <td align=\"left\">"+ name +"</td>\n" +
+                    "                        <td align=\"center\">"+ doneOrNot +"</td>\n" +
+                    "                        <td align=\"right\"><a href="+ personnalHref +">下载</a></td>\n" +
+                    "                    </tr>");
+
+                $('#table_heading').after(line);
+            }
+        },function (errCode) {
+            alert(errCode);
+        });
+    }
+
+    function download() {
+        //根据后台接口下载
+    }
+
+</script>
 </body>
 </html>
