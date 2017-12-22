@@ -335,47 +335,80 @@
 
         for(var i = this_week_index; i >= 0; i--){
             var nameKey = 'complete' + (this_week_index===0?'':('_'+this_week_index));
+            var len = document.getElementsByName(nameKey).length;
+            var thisWeekWork = $('#this_week_work' + (this_week_index===0?'':('_'+this_week_index))).val();
+            var thisWeekComplete;
+            var thisWeekStart = $('#this_week_startTime' + (this_week_index===0?'':('_'+this_week_index))).val();
+            var thisWeekEnd = $('#this_week_endTime' + (this_week_index===0?'':('_'+this_week_index))).val();
+            var thisWeekDetails = $('#this_week_detailsWork' + (this_week_index===0?'':('_'+this_week_index))).val();
+            for(var tempI = 0; tempI < len; tempI++){
+                if(document.getElementsByName(nameKey)[tempI].checked){
+                    thisWeekComplete = document.getElementsByName(nameKey)[tempI].value;
+                }
+            }
             thisWeek.push({
-                thisWeekWork: $('#this_week_work' + (this_week_index===0?'':('_'+this_week_index))).val(),
-                thisWeekComplete:$('input[name= nameKey][checked]').val(),    //1已完成，0未完成
-                thisWeekStart:$('#this_week_startTime' + (this_week_index===0?'':('_'+this_week_index))).val(),
-                thisWeekEnd:$('#this_week_endTime' + (this_week_index===0?'':('_'+this_week_index))).val(),
-                thisWeekDetails:$('#this_week_detailsWork' + (this_week_index===0?'':('_'+this_week_index))).val()
+                thisWeekWork: thisWeekWork,
+                thisWeekComplete:thisWeekComplete,    //1已完成，0未完成
+                thisWeekStart:thisWeekStart,
+                thisWeekEnd:thisWeekEnd,
+                thisWeekDetails:thisWeekDetails
             });
+            this_week_index--;
         }
 
-        console.log(thisWeek);
-
         for(var j = next_week_index; j >= 0; j--){
-
+            var nextWeekWork = $('#next_week_work' + (next_week_index===0?'':('_'+next_week_index))).val();
+            var nextWeekEnd = $('#next_time_end' + (next_week_index===0?'':('_'+next_week_index))).val();
+            var nextWeekRuler = $('#next_ruler' + (next_week_index===0?'':('_'+next_week_index))).val();
+            nextWeek.push({
+                nextWeekWork: nextWeekWork,
+                nextWeekEnd:nextWeekEnd,
+                nextWeekRuler:nextWeekRuler,
+            });
+            next_week_index--;
         }
 
         for(var k = need_resource_index; k >= 0; k--){
-
+            var resourceText = $('#resource_text' + (need_resource_index===0?'':('_'+need_resource_index))).val();
+            var resourceTimeStart = $('#resource_time_start' + (need_resource_index===0?'':('_'+need_resource_index))).val();
+            var resourceTimeEnd = $('#resource_time_end' + (need_resource_index===0?'':('_'+need_resource_index))).val();
+            var resourceRuler = $('#resource_ruler' + (need_resource_index===0?'':('_'+need_resource_index))).val();
+            needResource.push({
+                resourceText: resourceText,
+                resourceTimeStart:resourceTimeStart,
+                resourceTimeEnd:resourceTimeEnd,
+                resourceRuler:resourceRuler,
+            });
+            need_resource_index--;
         }
 
 
-        // var operatorKey = sessionStorage.getItem("operatorKey");
-        // var operatorId = sessionStorage.getItem("operatorID");
-        // var time = new Date().getTime();
-        // var logString = {
-        //     "operatorId": operatorId,
-        //     "workType": 1,
-        //
-        //
-        // }
-        // var str = JSON.stringify(logString);
-        // var log = encodeURI(str);
-        //
-        // N.getAction("addOperatorAttendanceLog.action", {
-        //     operatorKey: operatorKey,
-        //     operatorAttendanceLog: log
-        // }, function (msg) {
-        //     alert("签到成功！");
-        // }, function (msg) {
-        //     var d = JSON.parse(msg)
-        //     alert(d.m);
-        // });
+        var operatorKey = sessionStorage.getItem("operatorKey");
+        var operatorId = sessionStorage.getItem("operatorID");
+        var logString = {
+            "operatorId": operatorId,
+            "workType": 1,
+            "name":name,
+            "department":department,
+            "reportWriteTime":reportWriteTime,
+            "reportStartTime":reportStartTime,
+            "reportEndTime":reportEndTime,
+            "thisWeek":thisWeek,
+            "nextWeek":nextWeek,
+            "needResource":needResource
+        }
+        var str = JSON.stringify(logString);
+        var log = encodeURI(str);
+
+        N.getAction("addOperatorAttendanceLog.action", {
+            operatorKey: operatorKey,
+            operatorAttendanceLog: log
+        }, function (msg) {
+            alert("填写成功！");
+        }, function (msg) {
+            var d = JSON.parse(msg)
+            alert(d.m);
+        });
     }
 </script>
 </body>
